@@ -17,7 +17,7 @@ async def analyze(file: UploadFile, question: str = Form(...)):  # async 비동�
 
     model = "gpt-4"
 
-# 2. gpt 프롬포트 설정 및 사용자에게 질문을 받고 pandas로 코드 시각화화
+# 2. gpt 프롬포트 설정 및 사용자에게 질문을 받고 pandas로 코드 시각화
 # system = gpt 프롬포트 user = 사용자 질문 assistant = 답변 
     gpt_response = openai.ChatCompletion.create(
         model=model,
@@ -44,5 +44,5 @@ async def analyze(file: UploadFile, question: str = Form(...)):  # async 비동�
     return JSONResponse(content={
         "summary": summary,   # 이건 gpt 답변 자연어 부분 이걸 답변창에 띄우고
         "image_url": f"/static/{image_path}" if image_path else "",     # 이건 이미지 이것도 맞는 구역에 
-        "code": code       # 이건 gpt가 생성한 코드 보여줘도 괜찮고 안보여줘도 괜찮을듯듯 
+        "code": code       # 이건 gpt가 생성한 코드 보여줘도 괜찮고 안보여줘도 괜찮을듯
     })
