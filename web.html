@@ -8,11 +8,16 @@
 </head>
 <body>
     <div class="container">
-        <div class="sidebar">
-            <div class="menu-item">&#9776; 메뉴</div>
+        <!-- 메뉴 버튼 -->
+        <div class="menu-button" onclick="toggleSidebar()">&#9776; </div>
+        
+        <!-- 사이드바 -->
+        <div class="sidebar" id="sidebar">
             <div class="menu-item">📄 새 채팅</div>
             <div class="menu-item">⚙ 설정</div>
         </div>
+
+        <!-- 채팅창 -->
         <div class="chat-container">
             <div class="chat-box">
                 <div class="message bot-message">안녕하세요! 무엇을 도와드릴까요?</div>
@@ -21,6 +26,13 @@
             <button class="send-button">전송</button>
         </div>
     </div>
+
+    <script>
+        // 사이드바 토글 함수
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+    </script>
 </body>
 </html>
-
