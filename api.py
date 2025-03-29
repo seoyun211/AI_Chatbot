@@ -2,9 +2,12 @@ from fastapi import FastAPI, UploadFile, Form # fastapi = api쓰겟따 uploadfil
 from fastapi.responses import JSONResponse # 응답을 json 형식으로 반환하기 위해
 import openai # api라이브러리 
 import shutil # 파일 저장 복사
-from panda import run_pandas_code # panda라는 파일에서 pandas를 실행 시키겠다 panda는 임시 이름 
+from analy import run_pandas_code # analy라는 파일에서 pandas를 실행 시키겠다 panda는 임시 이름 
+from fastapi.staticfiles import StaticFiles # fastapi에서 이미지파일을 처리한다
+
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static") # 요청하면 static폴더에서 해당 파일을 찾아서 보여줌줌
 openai.api_key = "key 넣기"
 
 # 1. 사용자에게 파일을 받는 부분 파일을 받아서 uploaded_data.csv에 wb로 복사
