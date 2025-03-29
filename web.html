@@ -19,11 +19,11 @@
 
         <!-- 채팅창 -->
         <div class="chat-container">
-            <div class="chat-box">
+            <div class="chat-box" id="chat-box">
                 <div class="message bot-message">안녕하세요! 무엇을 도와드릴까요?</div>
             </div>
-            <input type="text" class="input-box" placeholder="메시지를 입력하세요...">
-            <button class="send-button">전송</button>
+            <input type="text" class="input-box" id="input-box" placeholder="메시지를 입력하세요...">
+            <button class="send-button" onclick="sendMessage()">전송</button>
         </div>
     </div>
 
@@ -32,6 +32,47 @@
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('open');
+        }
+
+        // 메시지 전송 함수
+        async function sendMessage() {
+            const inputBox = document.getElementById('input-box');
+            const message = inputBox.value;
+            
+            // 입력값이 비어있지 않으면 처리
+            if (message.trim() !== "") {
+                // 사용자 메시지 표시
+                displayMessage(message, 'user-message');
+                
+                // API 요청을 보냄
+                const response = await fetch('http://127.0.0.1:8000/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message }) // 메시지 데이터 전송
+                });
+                
+                // 서버 응답을 받음
+                const data = await response.json();
+                const botResponse = data.response || "죄송합니다, 알 수 없는 오류가 발생했습니다.";
+                
+                // 봇의 응답을 표시
+                displayMessage(botResponse, 'bot-message');
+            }
+            
+            // 입력 박스를 비움
+            inputBox.value = '';
+        }
+
+        // 메시지를 채팅창에 표시하는 함수
+        function displayMessage(message, className) {
+            const chatBox = document.getElementById('chat-box');
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', className);
+            messageElement.textContent = message;
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight; // 스크롤을 최신 메시지로 이동
         }
     </script>
 </body>
