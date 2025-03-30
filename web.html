@@ -23,6 +23,11 @@
                 <div class="message bot-message">안녕하세요! 무엇을 도와드릴까요?</div>
             </div>
             <input type="text" class="input-box" id="input-box" placeholder="메시지를 입력하세요...">
+            
+            <!-- 파일 업로드 입력 추가 -->
+            <input type="file" id="file-input" title="CSV 파일을 업로드하세요" />
+
+
             <button class="send-button" onclick="sendMessage()">전송</button>
         </div>
     </div>
@@ -37,31 +42,48 @@
         // 메시지 전송 함수
         async function sendMessage() {
             const inputBox = document.getElementById('input-box');
+            const fileInput = document.getElementById('file-input');
             const message = inputBox.value;
-            
-            // 입력값이 비어있지 않으면 처리
+
             if (message.trim() !== "") {
-                // 사용자 메시지 표시
                 displayMessage(message, 'user-message');
-                
-                // API 요청을 보냄
-                const response = await fetch('http://127.0.0.1:8000/analyze', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ message: message }) // 메시지 데이터 전송
-                });
-                
-                // 서버 응답을 받음
-                const data = await response.json();
-                const botResponse = data.response || "죄송합니다, 알 수 없는 오류가 발생했습니다.";
-                
-                // 봇의 응답을 표시
-                displayMessage(botResponse, 'bot-message');
+
+                const formData = new FormData();
+                formData.append('question', message);
+
+                let url = "";
+
+                // 파일이 있을 경우 분석 API 호출
+                if (fileInput.files.length > 0) {
+                    formData.append('file', fileInput.files[0]);
+                    url = 'http://127.0.0.1:8000/analyze';
+                } else {
+                    // 파일이 없으면 일반 채팅 API 호출
+                    url = 'http://127.0.0.1:8000/chat';
+                }
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+                    const botResponse = data.summary || data.answer || "죄송합니다, 알 수 없는 오류가 발생했습니다.";
+
+                    displayMessage(botResponse, 'bot-message');
+
+                    // 시각화 이미지가 있을 경우 추가 표시
+                    if (data.image_url) {
+                        displayImage(data.image_url);
+                    }
+
+                } catch (error) {
+                    displayMessage("⚠ 서버와 통신 중 오류가 발생했습니다.", 'bot-message');
+                    console.error(error);
+                }
             }
-            
-            // 입력 박스를 비움
+
             inputBox.value = '';
         }
 
@@ -73,6 +95,17 @@
             messageElement.textContent = message;
             chatBox.appendChild(messageElement);
             chatBox.scrollTop = chatBox.scrollHeight; // 스크롤을 최신 메시지로 이동
+        }
+
+        // 이미지 응답을 화면에 표시하는 함수
+        function displayImage(imageUrl) {
+            const chatBox = document.getElementById('chat-box');
+            const imgElement = document.createElement('img');
+            imgElement.src = imageUrl;
+            imgElement.style.maxWidth = '100%';
+            imgElement.style.marginTop = '10px';
+            chatBox.appendChild(imgElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
         }
     </script>
 </body>
