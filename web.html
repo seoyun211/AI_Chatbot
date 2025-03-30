@@ -25,9 +25,10 @@
             <input type="text" class="input-box" id="input-box" placeholder="메시지를 입력하세요...">
             
             <!-- 파일 업로드 입력 추가 -->
-            <input type="file" id="file-input" title="CSV 파일을 업로드하세요" />
-
-
+            <div class="file-voice-container">
+                <input type="file" id="file-input" title="CSV 파일을 업로드하세요" />
+                <button class="voice-button" onclick="startSpeechRecognition()">🎤</button>
+            </div>
             <button class="send-button" onclick="sendMessage()">전송</button>
         </div>
     </div>

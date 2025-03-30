@@ -72,6 +72,7 @@ body {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
+  padding: 20px;
 }
 
 /* 채팅 메시지 박스 */
@@ -112,7 +113,7 @@ body {
 
 /* 사용자 메시지 스타일 */
 .user-message {
-  background-color: #007bff; /* 파란색 배경 */
+  background-color: #609767; /* 파란색 배경 */
   color: white; /* 흰색 글씨 */
   align-self: flex-end; /* 오른쪽 정렬 */
 }
@@ -122,8 +123,38 @@ body {
   padding: 10px;
   border-radius: 20px;
   border: 1px solid #ccc;
-  margin: 10px;
+  margin-bottom: 15px;
   width: calc(100% - 24px);
+}
+/* 파일 선택 및 음성 인식 버튼을 수평으로 배치 */
+.file-voice-container {
+  display: flex;
+  align-items: center; /* 수직 정렬 */
+  gap: 10px; /* 버튼 사이에 간격 추가 */
+  margin-bottom: 10px; /* 전송 버튼과의 간격 */
+}
+
+/* 음성 인식 버튼 스타일 */
+.voice-button {
+  background-color: #F1F8F2; 
+  color: white;
+  border: none;
+  border-radius: 50%; /* 둥근 버튼으로 변경 */
+  padding: 10px;
+  cursor: pointer;
+  width: 40px; /* 작은 크기 */
+  height: 40px; /* 작은 크기 */
+  transition: background-color 0.3s ease;
+}
+
+.voice-button:hover {
+  background-color: #e6b800;
+}
+
+/* 파일 선택 버튼 스타일 */
+#file-input {
+  padding: 5px;
+  font-size: 14px;
 }
 
 /* 전송 버튼 스타일 */
@@ -135,6 +166,7 @@ body {
   padding: 10px 15px;
   cursor: pointer;
   width: 100%;
+  margin-top: 10px;
   transition: background-color 0.3s ease; 
 }
 
