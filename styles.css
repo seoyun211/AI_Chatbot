@@ -91,6 +91,16 @@ body {
   max-width: 70%; /* 최대 너비 조정 */
   white-space: pre-wrap; /* 줄바꿈 설정 */
   word-break: keep-all; /* 단어가 깨지지 않도록 설정 */
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+  }
+  to {
+      opacity: 1;
+  }
 }
 
 /* 봇 메시지 스타일 */
