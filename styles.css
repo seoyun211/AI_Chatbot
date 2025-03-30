@@ -1,4 +1,4 @@
-/* styles.css */
+/* 전체 스타일 초기화 */
 * {
   margin: 0;
   padding: 0;
@@ -25,6 +25,7 @@ body {
   height: 100%;
 }
 
+/* 사이드 메뉴 버튼 */
 .menu-button {
   position: absolute;
   top: 10px;
@@ -34,6 +35,7 @@ body {
   z-index: 100;
 }
 
+/* 사이드바 스타일 */
 .sidebar {
   position: fixed;
   top: 0;
@@ -61,6 +63,7 @@ body {
   background-color: #e0e0e0; /* 부드러운 호버 효과 */
 }
 
+/* 채팅창 컨테이너 */
 .chat-container {
   width: 400px;
   height: 600px;
@@ -71,6 +74,7 @@ body {
   flex-direction: column;
 }
 
+/* 채팅 메시지 박스 */
 .chat-box {
   flex: 1;
   padding: 20px;
@@ -79,20 +83,31 @@ body {
   flex-direction: column;
 }
 
+/* 공통 메시지 스타일 */
 .message {
   margin-bottom: 15px;
   padding: 10px;
   border-radius: 10px;
+  max-width: 70%; /* 최대 너비 조정 */
+  white-space: pre-wrap; /* 줄바꿈 설정 */
+  word-break: keep-all; /* 단어가 깨지지 않도록 설정 */
 }
 
+/* 봇 메시지 스타일 */
 .bot-message {
   background-color: #F1F8F2; /* 부드러운 연한 초록색 배경 */
   color: #052907; /* 초록색으로 텍스트 색상 설정 */
-  padding: 10px;
-  border-radius: 10px;
-  align-self: flex-start;
+  align-self: flex-start; /* 왼쪽 정렬 */
 }
 
+/* 사용자 메시지 스타일 */
+.user-message {
+  background-color: #007bff; /* 파란색 배경 */
+  color: white; /* 흰색 글씨 */
+  align-self: flex-end; /* 오른쪽 정렬 */
+}
+
+/* 입력창 스타일 */
 .input-box {
   padding: 10px;
   border-radius: 20px;
@@ -101,6 +116,7 @@ body {
   width: calc(100% - 24px);
 }
 
+/* 전송 버튼 스타일 */
 .send-button {
   background-color: #6C9D6F; 
   color: white;
