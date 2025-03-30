@@ -39,34 +39,34 @@ body {
 .sidebar {
   position: fixed;
   top: 0;
-  left: -250px; /* 사이드바 기본 위치 (보이지 않음) */
+  left: -250px;
   width: 250px;
   height: 100%;
-  background-color: #f9f9f9; /* 밝은 색으로 변경 */
-  color: #333; /* 글자 색을 조금 더 어두운 색으로 변경 */
-  border-right: 1px solid #ccc; /* 채팅창과 유사한 구분선 */
+  background-color: #f9f9f9;
+  color: #333;
+  border-right: 1px solid #ccc;
   transition: 0.3s;
   padding-top: 50px;
 }
 
 .sidebar.open {
-  left: 0; /* 사이드바 열렸을 때 */
+  left: 0;
 }
 
 .sidebar .menu-item {
   padding: 15px;
-  border-bottom: 1px solid #ddd; /* 더 부드러운 구분선 */
+  border-bottom: 1px solid #ddd;
   cursor: pointer;
 }
 
 .sidebar .menu-item:hover {
-  background-color: #e0e0e0; /* 부드러운 호버 효과 */
+  background-color: #e0e0e0;
 }
 
-/* 채팅창 컨테이너 */
+/* 채팅창 컨테이너 크기 조정 */
 .chat-container {
-  width: 400px;
-  height: 600px;
+  width: 500px;
+  height: 700px;
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -89,9 +89,9 @@ body {
   margin-bottom: 15px;
   padding: 10px;
   border-radius: 10px;
-  max-width: 70%; /* 최대 너비 조정 */
-  white-space: pre-wrap; /* 줄바꿈 설정 */
-  word-break: keep-all; /* 단어가 깨지지 않도록 설정 */
+  max-width: 70%;
+  white-space: pre-wrap;
+  word-break: keep-all;
   animation: fadeIn 0.5s ease-out;
 }
 
@@ -106,16 +106,16 @@ body {
 
 /* 봇 메시지 스타일 */
 .bot-message {
-  background-color: #F1F8F2; /* 부드러운 연한 초록색 배경 */
-  color: #052907; /* 초록색으로 텍스트 색상 설정 */
-  align-self: flex-start; /* 왼쪽 정렬 */
+  background-color: #F1F8F2;
+  color: #052907;
+  align-self: flex-start;
 }
 
 /* 사용자 메시지 스타일 */
 .user-message {
-  background-color: #609767; /* 파란색 배경 */
-  color: white; /* 흰색 글씨 */
-  align-self: flex-end; /* 오른쪽 정렬 */
+  background-color: #609767;
+  color: white;
+  align-self: flex-end;
 }
 
 /* 입력창 스타일 */
@@ -123,27 +123,35 @@ body {
   padding: 10px;
   border-radius: 20px;
   border: 1px solid #ccc;
-  margin-bottom: 15px;
   width: calc(100% - 24px);
 }
+
 /* 파일 선택 및 음성 인식 버튼을 수평으로 배치 */
 .file-voice-container {
   display: flex;
-  align-items: center; /* 수직 정렬 */
-  gap: 10px; /* 버튼 사이에 간격 추가 */
-  margin-bottom: 10px; /* 전송 버튼과의 간격 */
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+  margin-bottom: 10px;
 }
 
-/* 음성 인식 버튼 스타일 */
+/* 파일 선택 버튼 스타일 */
+#file-input {
+  flex: 1;
+  padding: 5px;
+  font-size: 14px;
+}
+
+/* 음성 인식 버튼을 오른쪽에 배치 */
 .voice-button {
-  background-color: #F1F8F2; 
+  background-color: #F1F8F2;
   color: white;
   border: none;
-  border-radius: 50%; /* 둥근 버튼으로 변경 */
+  border-radius: 50%;
   padding: 10px;
   cursor: pointer;
-  width: 40px; /* 작은 크기 */
-  height: 40px; /* 작은 크기 */
+  width: 40px;
+  height: 40px;
   transition: background-color 0.3s ease;
 }
 
@@ -151,15 +159,9 @@ body {
   background-color: #e6b800;
 }
 
-/* 파일 선택 버튼 스타일 */
-#file-input {
-  padding: 5px;
-  font-size: 14px;
-}
-
 /* 전송 버튼 스타일 */
 .send-button {
-  background-color: #6C9D6F; 
+  background-color: #6C9D6F;
   color: white;
   border: none;
   border-radius: 20px;
@@ -167,9 +169,9 @@ body {
   cursor: pointer;
   width: 100%;
   margin-top: 10px;
-  transition: background-color 0.3s ease; 
+  transition: background-color 0.3s ease;
 }
 
 .send-button:hover {
-  background-color: #5A8A5D; 
+  background-color: #5A8A5D;
 }
