@@ -17,4 +17,4 @@
 
 ## 맡은 분야
 - 백엔드  :  leej1045 , wintering123
-- 프론트엔드  : seoyun211 , JJuNi27
+- 프론트엔드  : seoyun211 , JJuNi27 ..
