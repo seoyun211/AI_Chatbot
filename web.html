@@ -1,20 +1,40 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbot</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <div class="container">
         <!-- 메뉴 버튼 -->
         <div class="menu-button" onclick="toggleSidebar()">&#9776; </div>
-        
+
         <!-- 사이드바 -->
         <div class="sidebar" id="sidebar">
             <div class="menu-item" onclick="clearChat()">📄 새 채팅</div>
-            <div class="menu-item">⚙ 설정</div>
+            <div class="menu-item" onclick="openSettings()">⚙ 설정</div>
+        </div>
+
+        <!-- 설정 페이지 -->
+        <div class="settings-page" id="settings-page" style="display: none;">
+            <div class="settings-header" id="settings-header">
+                <span>⚙ 설정</span>
+                <div class="window-controls">
+                    <button class="minimize" onclick="minimizeSettings()">—</button>
+                    <button class="restore" onclick="restoreSettings()">▢</button>
+                    <button class="close" onclick="closeSettings()">X</button>
+                </div>
+            </div>
+            <label>
+                <input type="checkbox" id="dark-mode-toggle"> 다크 모드 활성화
+            </label>
+            <br>
+            <button onclick="saveChatHistory()">💾 채팅 저장</button>
+            <button onclick="loadChatHistory()">📂 채팅 불러오기</button>
         </div>
 
         <!-- 채팅창 -->
@@ -23,7 +43,7 @@
                 <div class="message bot-message">안녕하세요! 무엇을 도와드릴까요?</div>
             </div>
             <textarea class="input-box" id="input-box" placeholder="메시지를 입력하세요..." rows="3"></textarea>
-            
+
             <!-- 파일 업로드 입력 추가 -->
             <div class="file-voice-container">
                 <input type="file" id="file-input" title="CSV 파일을 업로드하세요" />
@@ -31,105 +51,148 @@
             </div>
             <button class="send-button" onclick="sendMessage()">전송</button>
         </div>
+        <!-- 설정 페이지 -->
+        <div class="settings-page" id="settings-page">
+            <div class="settings-header" id="settings-header">
+                <span>⚙ 설정</span>
+                <div class="window-controls">
+                    <button class="minimize" onclick="minimizeSettings()">—</button>
+                    <button class="restore" onclick="restoreSettings()">▢</button>
+                    <button class="close" onclick="closeSettings()">X</button>
+                </div>
+            </div>
+            <label>
+                <input type="checkbox" id="dark-mode-toggle"> 다크 모드 활성화
+            </label>
+            <br>
+            <button onclick="saveChatHistory()">💾 채팅 저장</button>
+            <button onclick="loadChatHistory()">📂 채팅 불러오기</button>
+        </div>
     </div>
 
     <script>
-        // 사이드바 토글 함수
+        // 사이드바 토글
         function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('open');
+            document.getElementById('sidebar').classList.toggle('open');
         }
 
-        // 새 채팅 버튼 클릭 시 채팅창 초기화
+        // 새 채팅
         function clearChat() {
-            const chatBox = document.getElementById('chat-box');
-            chatBox.innerHTML = '<div class="message bot-message">안녕하세요! 무엇을 도와드릴까요?</div>';
+            document.getElementById('chat-box').innerHTML = '<div class="message bot-message">안녕하세요! 무엇을 도와드릴까요?</div>';
         }
 
-        // 메시지 전송 함수
+        // 설정 열기
+        function openSettings() {
+            document.getElementById('settings-page').style.display = 'block';
+        }
+
+        // 설정 닫기
+        function closeSettings() {
+            document.getElementById('settings-page').style.display = 'none';
+        }
+
+        // 다크 모드 토글 (기본적으로 꺼짐)
+        document.getElementById('dark-mode-toggle').addEventListener('change', function () {
+            document.body.classList.toggle('dark-mode', this.checked);
+            localStorage.setItem('darkMode', this.checked);
+        });
+
+        // 사이트 로드 시 기본 다크 모드 OFF 적용
+        window.onload = function () {
+            localStorage.setItem('darkMode', 'false'); // 기본값 꺼짐
+            document.body.classList.remove('dark-mode');
+            document.getElementById('dark-mode-toggle').checked = false;
+        };
+
+        // 채팅 저장
+        function saveChatHistory() {
+            localStorage.setItem('chatHistory', document.getElementById('chat-box').innerHTML);
+            alert('채팅이 저장되었습니다!');
+        }
+
+        // 채팅 불러오기
+        function loadChatHistory() {
+            const savedChat = localStorage.getItem('chatHistory');
+            if (savedChat) {
+                document.getElementById('chat-box').innerHTML = savedChat;
+            } else {
+                alert('저장된 채팅이 없습니다.');
+            }
+        }
+
+        // 메시지 전송
         async function sendMessage() {
             const inputBox = document.getElementById('input-box');
             const fileInput = document.getElementById('file-input');
-            const message = inputBox.value;
+            const message = inputBox.value.trim();
 
-            if (message.trim() !== "") {
+            if (message !== "") {
                 displayMessage(message, 'user-message');
-                inputBox.value = ''; // 메시지 전송 후 입력창 비우기
+                inputBox.value = '';
 
                 const formData = new FormData();
                 formData.append('question', message);
 
-                let url = "";
-
-                // 파일이 있을 경우 분석 API 호출
-                if (fileInput.files.length > 0) {
-                    formData.append('file', fileInput.files[0]);
-                    url = 'http://127.0.0.1:8000/analyze';
-                } else {
-                    // 파일이 없으면 일반 채팅 API 호출
-                    url = 'http://127.0.0.1:8000/chat';
-                } 
+                let url = fileInput.files.length > 0 ? 'http://127.0.0.1:8000/analyze' : 'http://127.0.0.1:8000/chat';
 
                 try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        body: formData
-                    });
-
+                    const response = await fetch(url, { method: 'POST', body: formData });
                     const data = await response.json();
-                    const botResponse = data.summary || data.answer || "죄송합니다, 알 수 없는 오류가 발생했습니다.";
-
-                    displayMessage(botResponse, 'bot-message');
-
-                    // 시각화 이미지가 있을 경우 추가 표시
-                    if (data.image_url) {
-                        displayImage(data.image_url);
-                    }
-
+                    displayMessage(data.summary || data.answer || "오류 발생", 'bot-message');
                 } catch (error) {
-                    displayMessage("⚠ 서버와 통신 중 오류가 발생했습니다.", 'bot-message');
-                    console.error(error);
+                    displayMessage("⚠ 서버와 통신 중 오류 발생", 'bot-message');
                 }
             }
         }
 
-        // 메시지를 채팅창에 표시하는 함수
+        // 메시지 표시
         function displayMessage(message, className) {
             const chatBox = document.getElementById('chat-box');
-            const messageElement = document.createElement('div');
-            messageElement.classList.add('message', className);
-            messageElement.textContent = message;
-            chatBox.appendChild(messageElement);
-            chatBox.scrollTop = chatBox.scrollHeight; // 스크롤을 최신 메시지로 이동
-        }
-
-        // 이미지 응답을 화면에 표시하는 함수
-        function displayImage(imageUrl) {
-            const chatBox = document.getElementById('chat-box');
-            const imgElement = document.createElement('img');
-            imgElement.src = imageUrl;
-            imgElement.style.maxWidth = '100%';
-            imgElement.style.marginTop = '10px';
-            chatBox.appendChild(imgElement);
+            const msgElement = document.createElement('div');
+            msgElement.classList.add('message', className);
+            msgElement.textContent = message;
+            chatBox.appendChild(msgElement);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        // Enter 키 이벤트 추가
-        document.addEventListener("DOMContentLoaded", function () {
-            const inputBox = document.getElementById("input-box");
-
-            if (inputBox) {
-                inputBox.addEventListener("keydown", function (event) {
-                    if ((event.key === "Enter" || event.key === "NumpadEnter") && !event.shiftKey) {
-                        event.preventDefault(); // 기본 엔터 동작 방지
-                        console.log("✅ 전송 실행됨!"); // 콘솔에서 확인용
-                        sendMessage(); // 메시지 전송 함수 호출
-                    }
-                });
-            } else { 
-                console.error("❌ input-box를 찾을 수 없습니다!");
+        // Enter 키 이벤트 처리 (Shift+Enter 줄바꿈, Enter 전송)
+        document.getElementById("input-box").addEventListener("keydown", function (event) {
+            if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
             }
         });
+
+        // 설정 창 드래그 이동 기능 개선
+        document.addEventListener("DOMContentLoaded", function () {
+            const settingsPage = document.getElementById("settings-page");
+            const header = document.getElementById("settings-header");
+
+            header.addEventListener("mousedown", function (e) {
+                let shiftX = e.clientX - settingsPage.offsetLeft;
+                let shiftY = e.clientY - settingsPage.offsetTop;
+
+                function moveAt(x, y) {
+                    settingsPage.style.left = `${x - shiftX}px`;
+                    settingsPage.style.top = `${y - shiftY}px`;
+                }
+
+                function onMouseMove(event) {
+                    moveAt(event.clientX, event.clientY);
+                }
+
+                document.addEventListener("mousemove", onMouseMove);
+                document.addEventListener("mouseup", function () {
+                    document.removeEventListener("mousemove", onMouseMove);
+                }, { once: true });
+            });
+
+            // 설정 열기/닫기 함수 전역에서 사용 가능하게 설정
+            window.openSettings = openSettings;
+            window.closeSettings = closeSettings;
+        });
+
     </script>
 </body>
+
 </html>

@@ -5,6 +5,59 @@
   box-sizing: border-box;
 }
 
+/* 설정 페이지 스타일 */
+.settings-page {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  background: white;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  z-index: 1000;
+}
+
+/* 다크 모드 스타일 (유튜브 다크모드 색상 참고) */
+.dark-mode {
+  background-color: #0F0F0F;
+  color: #FFFFFF;
+}
+
+.dark-mode .settings-page,
+.dark-mode .chat-container,
+.dark-mode .sidebar {
+  background: #181818;
+  color: #E0E0E0;
+  border-color: #303030;
+}
+
+.dark-mode .menu-button,
+.dark-mode .send-button,
+.dark-mode .voice-button {
+  background-color: #282828;
+  color: #FFFFFF;
+  border-color: #3D3D3D;
+}
+
+.dark-mode .menu-button:hover,
+.dark-mode .send-button:hover,
+.dark-mode .voice-button:hover {
+  background-color: #3D3D3D;
+}
+
+.dark-mode .bot-message {
+  background-color: #263238;
+  color: #E0E0E0;
+}
+
+.dark-mode .user-message {
+  background-color: #1E88E5;
+  color: #FFFFFF;
+}
+
 body {
   font-family: Arial, sans-serif;
   background-color: #f4f4f4;
@@ -97,10 +150,10 @@ body {
 
 @keyframes fadeIn {
   from {
-      opacity: 0;
+    opacity: 0;
   }
   to {
-      opacity: 1;
+    opacity: 1;
   }
 }
 
@@ -142,7 +195,7 @@ body {
   font-size: 14px;
 }
 
-/* 음성 인식 버튼을 오른쪽에 배치 */
+/* 음성 인식 버튼 스타일 */
 .voice-button {
   background-color: #F1F8F2;
   color: white;
