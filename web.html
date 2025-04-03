@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -61,7 +61,7 @@
                 } else {
                     // 파일이 없으면 일반 채팅 API 호출
                     url = 'http://127.0.0.1:8000/chat';
-                }
+                } 
 
                 try {
                     const response = await fetch(url, {
@@ -108,6 +108,23 @@
             chatBox.appendChild(imgElement);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
+
+        // Enter 키 이벤트 추가
+        document.addEventListener("DOMContentLoaded", function () {
+            const inputBox = document.getElementById("input-box");
+
+            if (inputBox) {
+                inputBox.addEventListener("keydown", function (event) {
+                    if ((event.key === "Enter" || event.key === "NumpadEnter") && !event.shiftKey) {
+                        event.preventDefault(); // 기본 엔터 동작 방지
+                        console.log("✅ 전송 실행됨!"); // 콘솔에서 확인용
+                        sendMessage(); // 메시지 전송 함수 호출
+                    }
+                });
+            } else { 
+                console.error("❌ input-box를 찾을 수 없습니다!");
+            }
+        });
     </script>
 </body>
 </html>
