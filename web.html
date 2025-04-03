@@ -48,6 +48,7 @@
 
             if (message.trim() !== "") {
                 displayMessage(message, 'user-message');
+                inputBox.value = ''; // 메시지 전송 후 입력창 비우기
 
                 const formData = new FormData();
                 formData.append('question', message);
@@ -84,8 +85,6 @@
                     console.error(error);
                 }
             }
-
-            inputBox.value = '';
         }
 
         // 메시지를 채팅창에 표시하는 함수
