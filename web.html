@@ -13,7 +13,7 @@
         
         <!-- 사이드바 -->
         <div class="sidebar" id="sidebar">
-            <div class="menu-item">📄 새 채팅</div>
+            <div class="menu-item" onclick="clearChat()">📄 새 채팅</div>
             <div class="menu-item">⚙ 설정</div>
         </div>
 
@@ -38,6 +38,12 @@
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('open');
+        }
+
+        // 새 채팅 버튼 클릭 시 채팅창 초기화
+        function clearChat() {
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML = '<div class="message bot-message">안녕하세요! 무엇을 도와드릴까요?</div>';
         }
 
         // 메시지 전송 함수
