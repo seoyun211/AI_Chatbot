@@ -56,6 +56,12 @@
 .dark-mode .user-message {
   background-color: #1E88E5;
   color: #FFFFFF;
+  border: 2px solid #1E88E5;
+}
+
+.dark-mode .send-button {
+  background-color: #1E88E5;
+  border: 2px solid #1E88E5;
 }
 
 body {
