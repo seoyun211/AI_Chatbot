@@ -2,213 +2,188 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Baekjoon Chatbot</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
-    <div class="container">
-        <!-- 메뉴 버튼 -->
-        <div class="menu-button" onclick="toggleSidebar()">&#9776; </div>
+  <!-- 👤 백준 아이디 입력 화면 -->
+  <div id="intro-page" style="text-align: center; margin-top: 100px;">
+    <h2>👋 백준 아이디를 입력하세요</h2>
+    <input type="text" id="boj-username" placeholder="ex) joonas123" style="padding: 10px; font-size: 16px;" />
+    <br /><br />
+    <button onclick="startChat()" style="padding: 10px 20px; font-size: 16px;">시작하기</button>
+  </div>
 
-        <!-- 사이드바 -->
-        <div class="sidebar" id="sidebar">
-            <div class="menu-item" onclick="clearChat()">📄 새 채팅</div>
-            <div class="menu-item" onclick="openSettings()">⚙ 설정</div>
-        </div>
-        
+  <!-- 🤖 챗봇 화면 -->
+  <div class="container" id="chat-page" style="display: none;">
+    <!-- 메뉴 버튼 -->
+    <div class="menu-button" onclick="toggleSidebar()">&#9776;</div>
 
-        <!-- 설정 페이지 (통합) -->
-        <div class="settings-page" id="settings-page" style="display: none;">
-            <div class="settings-header" id="settings-header">
-                <span>⚙ 설정</span>
-                <div class="window-controls">
-                    <button class="close" onclick="closeSettings()">X</button>
-                </div>
-            </div>
-
-            <!-- 키보드 메뉴 -->
-            <div class="menu-item" onclick="toggleStylePopup()">🎹 키보드</div>
-
-            <!-- 글씨 크기 조절 팝업 -->
-            <div id="style-popup"
-                style="display:none; position:fixed; top:60%; left:50%; transform:translate(-50%, -50%);
-        background:white; padding:15px; border:1px solid #ccc; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.2); z-index:1001;">
-                <strong>💡 글씨 크기 변경</strong>
-                <div style="margin-top: 10px; display: flex; gap: 10px;">
-                    <button onclick="setFontSize('small')">작게</button>
-                    <button onclick="setFontSize('medium')">보통</button>
-                    <button onclick="setFontSize('large')">크게</button>
-                </div>
-            </div>
-
-            <!-- 다크 모드 -->
-            <label>
-                <input type="checkbox" id="dark-mode-toggle"> 다크 모드 활성화
-            </label>
-            <br>
-
-            <!-- 채팅 저장 / 불러오기 -->
-            <button onclick="saveChatHistory()">💾 채팅 저장</button>
-            <button onclick="loadChatHistory()">📂 채팅 불러오기</button>
-        </div>
-
-
-        <!-- 채팅창 -->
-        <div class="chat-container">
-            <div class="chat-box" id="chat-box">
-                <div class="message bot-message">안녕하세요! 무엇을 도와드릴까요?</div>
-            </div>
-            <textarea class="input-box" id="input-box" placeholder="메시지를 입력하세요..." rows="3"></textarea>
-
-            <!-- 파일 업로드 입력 추가 -->
-            <div class="file-voice-container">
-                <input type="file" id="file-input" title="CSV 파일을 업로드하세요" />
-                <button class="voice-button" onclick="startSpeechRecognition()">🎤</button>
-            </div>
-            <button class="send-button" onclick="sendMessage()">전송</button>
-        </div>
+    <!-- 사이드바 -->
+    <div class="sidebar" id="sidebar">
+      <div class="menu-item" onclick="clearChat()">📄 새 채팅</div>
+      <div class="menu-item" onclick="openSettings()">⚙ 설정</div>
     </div>
 
-    <script>
-        // 사이드바 토글
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-        }
+    <!-- 설정 페이지 -->
+    <div class="settings-page" id="settings-page" style="display: none;">
+      <div class="settings-header" id="settings-header">
+        <span>⚙ 설정</span>
+        <div class="window-controls">
+          <button class="close" onclick="closeSettings()">X</button>
+        </div>
+      </div>
+      <div class="menu-item" onclick="toggleStylePopup()">🎹 키보드</div>
+      <div id="style-popup" style="display:none; position:fixed; top:60%; left:50%; transform:translate(-50%, -50%);
+        background:white; padding:15px; border:1px solid #ccc; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.2); z-index:1001;">
+        <strong>💡 글씨 크기 변경</strong>
+        <div style="margin-top: 10px; display: flex; gap: 10px;">
+          <button onclick="setFontSize('small')">작게</button>
+          <button onclick="setFontSize('medium')">보통</button>
+          <button onclick="setFontSize('large')">크게</button>
+        </div>
+      </div>
+      <label><input type="checkbox" id="dark-mode-toggle" /> 다크 모드 활성화</label><br />
+      <button onclick="saveChatHistory()">💾 채팅 저장</button>
+      <button onclick="loadChatHistory()">📂 채팅 불러오기</button>
+    </div>
 
-        // 새 채팅
-        function clearChat() {
-            document.getElementById('chat-box').innerHTML = '<div class="message bot-message">안녕하세요! 무엇을 도와드릴까요?</div>';
-        }
+    <!-- 채팅창 -->
+    <div class="chat-container">
+      <div class="chat-box" id="chat-box">
+        <div class="message bot-message">안녕하세요! 무엇을 도와드릴까요?</div>
+      </div>
+      <textarea class="input-box" id="input-box" placeholder="메시지를 입력하세요..." rows="3"></textarea>
+      <div class="file-voice-container">
+        <input type="file" id="file-input" title="CSV 파일을 업로드하세요" />
+        <button class="voice-button" onclick="startSpeechRecognition()">🎤</button>
+      </div>
+      <button class="send-button" onclick="sendMessage()">전송</button>
+    </div>
+  </div>
 
-        // 설정 열기
-        function openSettings() {
-            document.getElementById('settings-page').style.display = 'block';
-        }
+  <script>
+    // ▶ 아이디 입력 후 챗봇 페이지로 전환
+    function startChat() {
+      const username = document.getElementById('boj-username').value.trim();
+      if (!username) {
+        alert('백준 아이디를 입력해주세요!');
+        return;
+      }
+      localStorage.setItem('bojUsername', username);
+      document.getElementById('intro-page').style.display = 'none';
+      document.getElementById('chat-page').style.display = 'flex';
+    }
 
-        // 설정 닫기
-        function closeSettings() {
-            document.getElementById('settings-page').style.display = 'none';
-        }
+    // ▶ 메시지 전송 처리
+    async function sendMessage() {
+      const inputBox = document.getElementById('input-box');
+      const fileInput = document.getElementById('file-input');
+      const message = inputBox.value.trim();
+      const bojUsername = localStorage.getItem('bojUsername') || "";
 
-        // 다크 모드 토글 (기본적으로 꺼짐)
-        document.getElementById('dark-mode-toggle').addEventListener('change', function () {
-            document.body.classList.toggle('dark-mode', this.checked);
-            localStorage.setItem('darkMode', this.checked);
-        });
+      if (!message) return;
 
-        // 사이트 로드 시 기본 다크 모드 OFF 적용
-        window.onload = function () {
-            localStorage.setItem('darkMode', 'false'); // 기본값 꺼짐
-            document.body.classList.remove('dark-mode');
-            document.getElementById('dark-mode-toggle').checked = false;
-        };
+      displayMessage(message, 'user-message');
+      inputBox.value = '';
 
-        // 채팅 저장
-        function saveChatHistory() {
-            localStorage.setItem('chatHistory', document.getElementById('chat-box').innerHTML);
-            alert('채팅이 저장되었습니다!');
-        }
+      const formData = new FormData();
+      formData.append('question', message);
+      formData.append('boj_username', bojUsername);
 
-        // 채팅 불러오기
-        function loadChatHistory() {
-            const savedChat = localStorage.getItem('chatHistory');
-            if (savedChat) {
-                document.getElementById('chat-box').innerHTML = savedChat;
-            } else {
-                alert('저장된 채팅이 없습니다.');
-            }
-        }
+      const url = fileInput.files.length > 0 ? 'http://127.0.0.1:8000/analyze' : 'http://127.0.0.1:8000/chat';
 
-        // 메시지 전송
-        async function sendMessage() {
-            const inputBox = document.getElementById('input-box');
-            const fileInput = document.getElementById('file-input');
-            const message = inputBox.value.trim();
+      try {
+        const response = await fetch(url, { method: 'POST', body: formData });
+        const data = await response.json();
+        displayMessage(data.summary || data.answer || "오류 발생", 'bot-message');
+      } catch (error) {
+        displayMessage("⚠ 서버와 통신 중 오류 발생", 'bot-message');
+      }
+    }
 
-            if (message !== "") {
-                displayMessage(message, 'user-message');
-                inputBox.value = '';
+    // ▶ 공통 메시지 표시
+    function displayMessage(msg, className) {
+      const chatBox = document.getElementById('chat-box');
+      const div = document.createElement('div');
+      div.className = `message ${className}`;
+      div.textContent = msg;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
 
-                const formData = new FormData();
-                formData.append('question', message);
+    // 엔터 키로 전송
+    document.getElementById('input-box').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
 
-                let url = fileInput.files.length > 0 ? 'http://127.0.0.1:8000/analyze' : 'http://127.0.0.1:8000/chat';
+    // 다크 모드 토글
+    document.getElementById('dark-mode-toggle').addEventListener('change', function () {
+      document.body.classList.toggle('dark-mode', this.checked);
+      localStorage.setItem('darkMode', this.checked);
+    });
 
-                try {
-                    const response = await fetch(url, { method: 'POST', body: formData });
-                    const data = await response.json();
-                    displayMessage(data.summary || data.answer || "오류 발생", 'bot-message');
-                } catch (error) {
-                    displayMessage("⚠ 서버와 통신 중 오류 발생", 'bot-message');
-                }
-            }
-        }
+    // 초기 세팅
+    window.onload = function () {
+      const savedDark = localStorage.getItem('darkMode') === 'true';
+      document.body.classList.toggle('dark-mode', savedDark);
+      document.getElementById('dark-mode-toggle').checked = savedDark;
+    };
 
-        // 메시지 표시
-        function displayMessage(message, className) {
-            const chatBox = document.getElementById('chat-box');
-            const msgElement = document.createElement('div');
-            msgElement.classList.add('message', className);
-            msgElement.textContent = message;
-            chatBox.appendChild(msgElement);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
+    // 설정 관련 함수들
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
 
-        // Enter 키 이벤트 처리 (Shift+Enter 줄바꿈, Enter 전송)
-        document.getElementById("input-box").addEventListener("keydown", function (event) {
-            if (event.key === "Enter" && !event.shiftKey) {
-                event.preventDefault();
-                sendMessage();
-            }
-        });
+    function clearChat() {
+      document.getElementById('chat-box').innerHTML = '<div class="message bot-message">안녕하세요! 무엇을 도와드릴까요?</div>';
+    }
 
-        // 설정 창 드래그 이동 기능 개선
-        document.addEventListener("DOMContentLoaded", function () {
-            const settingsPage = document.getElementById("settings-page");
-            const header = document.getElementById("settings-header");
+    function openSettings() {
+      document.getElementById('settings-page').style.display = 'block';
+    }
 
-            header.addEventListener("mousedown", function (e) {
-                let shiftX = e.clientX - settingsPage.offsetLeft;
-                let shiftY = e.clientY - settingsPage.offsetTop;
+    function closeSettings() {
+      document.getElementById('settings-page').style.display = 'none';
+    }
 
-                function moveAt(x, y) {
-                    settingsPage.style.left = `${x - shiftX}px`;
-                    settingsPage.style.top = `${y - shiftY}px`;
-                }
+    function toggleStylePopup() {
+      const popup = document.getElementById("style-popup");
+      popup.style.display = popup.style.display === "none" ? "block" : "none";
+    }
 
-                function onMouseMove(event) {
-                    moveAt(event.clientX, event.clientY);
-                }
+    function setFontSize(size) {
+      const messages = document.querySelectorAll('.bot-message');
+      messages.forEach(msg => {
+        msg.classList.remove('size-small', 'size-medium', 'size-large');
+        msg.classList.add(`size-${size}`);
+      });
+    }
 
-                document.addEventListener("mousemove", onMouseMove);
-                document.addEventListener("mouseup", function () {
-                    document.removeEventListener("mousemove", onMouseMove);
-                }, { once: true });
-            });
+    function saveChatHistory() {
+      localStorage.setItem('chatHistory', document.getElementById('chat-box').innerHTML);
+      alert('채팅이 저장되었습니다!');
+    }
 
-            // 설정 열기/닫기 함수 전역에서 사용 가능하게 설정
-            window.openSettings = openSettings;
-            window.closeSettings = closeSettings;
-        });
+    function loadChatHistory() {
+      const savedChat = localStorage.getItem('chatHistory');
+      if (savedChat) {
+        document.getElementById('chat-box').innerHTML = savedChat;
+      } else {
+        alert('저장된 채팅이 없습니다.');
+      }
+    }
 
-        function toggleStylePopup() {
-            const popup = document.getElementById("style-popup");
-            popup.style.display = popup.style.display === "none" ? "block" : "none";
-        }
-
-        function setFontSize(size) {
-            const messages = document.querySelectorAll('.bot-message');
-            messages.forEach(msg => {
-                msg.classList.remove('size-small', 'size-medium', 'size-large');
-                msg.classList.add(`size-${size}`);
-            });
-        }
-
-
-    </script>
+    function startSpeechRecognition() {
+      alert("🎤 음성 인식 기능은 아직 구현 중이에요!");
+    }
+  </script>
 </body>
 
 </html>
