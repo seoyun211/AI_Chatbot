@@ -1,70 +1,87 @@
-from fastapi import FastAPI, UploadFile, Form # fastapi = api쓰겟따 uploadfile 파일을 받기위해 form html로 부터 질문을 받기위해
-from fastapi.responses import JSONResponse # 응답을 json 형식으로 반환하기 위해
-from openai import OpenAI # openai 객체를 통해 api 요청 (최신 버전)
-import shutil # 파일 저장 복사
-from analy import run_pandas_code # analy라는 파일에서 pandas를 실행 시키겠다 panda는 임시 이름 
-from fastapi.staticfiles import StaticFiles # fastapi에서 이미지파일을 처리한다
+from fastapi import FastAPI, UploadFile, Form
+from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-
+from openai import OpenAI, APITimeoutError
+import shutil
+from analy import run_pandas_code
+import time
 
 app = FastAPI()
 
+# CORS 설정
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 또는 ["http://localhost:5500"]
+    allow_origins=["null"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-app.mount("/static", StaticFiles(directory="static"), name="static") # 요청하면 static폴더에서 해당 파일을 찾아서 보여줌줌
-client = OpenAI(api_key="") #key
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# 1. 사용자에게 파일을 받는 부분 파일을 받아서 uploaded_data.csv에 wb로 복사
-@app.post("/analyze")  # analyze라는 주소로 post요청이 오면 함수를 실행시키겠다는 뜻
-async def analyze(file: UploadFile, question: str = Form(...)):  # async 비동기 함수 속도 빠르게 하기 위해 
+# OpenAI API 키 설정
+client = OpenAI(api_key="")
+
+@app.post("/analyze")
+async def analyze(file: UploadFile, question: str = Form(...)):
     file_path = "uploaded_data.csv"
-    with open(file_path, "wb") as f: # w(쓰기)b(바이너리) (0과1로 저장 (excel과 csv파일은 바이너리가 적합)) with as 파일 자동 열고 닫기
-        shutil.copyfileobj(file.file, f) # 받은 파일을 f에 저장 f는 file_path 
+    with open(file_path, "wb") as f:
+        shutil.copyfileobj(file.file, f)
 
-    model = "gpt-4"
+    model = "gpt-3.5-turbo"
 
-    # 2. gpt 프롬포트 설정 및 사용자에게 질문을 받고 pandas로 코드 시각화
-    # system = gpt 프롬포트 user = 사용자 질문 assistant = 답변 
-    gpt_response = client.chat.completions.create( # 최신 방식
-        model=model,
-        messages=[
-            {"role": "system", "content": "당신은 pandas로 데이터 분석을 해야해."},
-            {"role": "system", "content": "한국어로 말해."},
-            {"role": "user", "content": f"{question} 에 맞는 pandas 코드를 작성해줘. 'df'라는 변수에 데이터가 들어 있다고 가정해."} #사용자 질문을 받음 그리고 프레임워크가 df 이름으로 하라고 지정
-        ]
-    )
-    code = gpt_response.choices[0].message.content # 최신 응답 구조에 맞게 코드 추출
+    try:
+        print("🔍 GPT 코드 생성 요청 시작")
+        gpt_response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "다음 지침을 무조건 따라야 합니다:"},
+                {"role": "system", "content": "1. 오직 pandas로 작성된 Python 코드만 반환하세요."},
+                {"role": "system", "content": "2. 절대 자연어 메시지, 설명, 요청, 거절 메시지를 포함하지 마세요."},
+                {"role": "system", "content": "3. 파일을 직접 읽거나 쓰는 코드도 금지입니다. 데이터는 반드시 제공된 'df' DataFrame만 사용합니다."},
+                {"role": "system", "content": "4. 최종 분석 결과는 반드시 'result'라는 변수에 저장합니다."},
+                {"role": "system", "content": "5. 분석 요청이 불명확하면 무조건 'result = df.head()' 코드를 반환하세요. 절대 자연어로 답변하지 마세요."},
+                {"role": "user", "content": f"{question}"}
+            ],
+            timeout=20
+        )
+        code = gpt_response.choices[0].message.content
+        print("✅ GPT 코드 생성 완료")
+        print("📄 실행할 코드:\n", code)
 
-    result, image_path = run_pandas_code(file_path, code) #file_path와 code로 pandas 분석 하고 result와 image로 받음
+        result, image_path = run_pandas_code(file_path, code)
+        print("✅ 코드 실행 완료")
 
-    # 3. 결과 요약 요청
-    gpt_summary = client.chat.completions.create( # 최신 방식
-        model=model,
-        messages=[
-            {"role": "system", "content": "당신은 데이터 분석 결과를 사용자에게 설명해줘."},
-            {"role": "user", "content": f"이 결과를 쉽게 요약해줘:\n{result}"}
-        ]
-    )
-    summary = gpt_summary.choices[0].message.content # 최신 응답 구조에 맞게 요약 추출
+        gpt_summary = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "데이터 분석 결과를 설명해줘."},
+                {"role": "user", "content": f"분석 결과:\n{result}"}
+            ],
+            timeout=20
+        )
+        summary = gpt_summary.choices[0].message.content
+        print("✅ 요약 생성 완료")
 
-    # 4. json으로 반환
-    return JSONResponse(content={
-        "summary": summary,   # 이건 gpt 답변 자연어 부분 이걸 답변창에 띄우고
-        "image_url": f"/static/{image_path}" if image_path else "",     # 이건 이미지 이것도 맞는 구역에 
-        "code": code       # 이건 gpt가 생성한 코드 보여줘도 괜찮고 안보여줘도 괜찮을듯
-    })
+        return JSONResponse(content={
+            "summary": summary,
+            "image_url": f"/static/{image_path}" if image_path else "",
+            "code": code
+        })
 
-# 📌 추가: 파일 없이 일반 대화하는 API
+    except APITimeoutError:
+        return JSONResponse(content={"summary": "⏱ GPT 응답 시간이 초과되었습니다. 다시 시도해주세요."}, status_code=504)
+
+    except Exception as e:
+        print("❌ 오류 발생:", e)
+        return JSONResponse(content={"summary": f"❗ 분석 도중 오류가 발생했습니다: {str(e)}"}, status_code=500)
+
+
 @app.post("/chat")
-async def chat(question: str = Form(...)):  # 질문만 받음
+async def chat(question: str = Form(...)):
     model = "gpt-4"
-    gpt_response = client.chat.completions.create( # 최신 방식
+    gpt_response = client.chat.completions.create(
         model=model,
         messages=[
             {"role": "system", "content": "친절하고 유용한 챗봇이야. 한국어로 대화해."},
@@ -73,3 +90,46 @@ async def chat(question: str = Form(...)):  # 질문만 받음
     )
     answer = gpt_response.choices[0].message.content
     return JSONResponse(content={"answer": answer})
+
+
+@app.post("/analyze-file")
+async def analyze_file(file: UploadFile, question: str = Form(...)):
+    file_path = f"./{file.filename}"
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    uploaded_file = client.files.create(
+        file=open(file_path, "rb"),
+        purpose='assistants'
+    )
+
+    assistant = client.beta.assistants.create(
+        name="Data Analysis Assistant",
+        instructions="너는 업로드된 파일을 분석하고 사용자의 질문에 답해야 해.",
+        model="gpt-4-turbo",
+        tools=[{"type": "code_interpreter"}],
+        file_ids=[uploaded_file.id]
+    )
+
+    thread = client.beta.threads.create()
+
+    client.beta.threads.messages.create(
+        thread_id=thread.id,
+        role="user",
+        content=question,
+        file_ids=[uploaded_file.id]
+    )
+
+    run = client.beta.threads.runs.create(
+        thread_id=thread.id,
+        assistant_id=assistant.id
+    )
+
+    while run.status in ["queued", "in_progress"]:
+        run = client.beta.threads.runs.retrieve(thread_id=thread.id, run_id=run.id)
+        time.sleep(1)
+
+    messages = client.beta.threads.messages.list(thread_id=thread.id)
+    analysis_result = messages.data[0].content[0].text.value
+
+    return JSONResponse(content={"analysis_result": analysis_result})
