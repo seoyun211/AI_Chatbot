@@ -29,6 +29,19 @@
                     <button class="close" onclick="closeSettings()">X</button>
                 </div>
             </div>
+            <!-- 사이드바에 키보드 메뉴 추가 -->
+            <div class="menu-item" onclick="toggleStylePopup()">🎹 키보드</div>
+
+            <!-- 스타일 조절 팝업 -->
+            <div id="style-popup" style="display:none; position:fixed; top:60%; left:50%; transform:translate(-50%, -50%);
+            background:white; padding:15px; border:1px solid #ccc; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.2); z-index:1001;">
+                <strong>💡 글씨 크기 변경</strong>
+                <div style="margin-top: 10px; display: flex; gap: 10px;">
+                    <button onclick="setFontSize('small')">작게</button>
+                    <button onclick="setFontSize('medium')">보통</button>
+                    <button onclick="setFontSize('large')">크게</button>
+                </div>
+            </div>
             <label>
                 <input type="checkbox" id="dark-mode-toggle"> 다크 모드 활성화
             </label>
@@ -191,6 +204,20 @@
             window.openSettings = openSettings;
             window.closeSettings = closeSettings;
         });
+
+        function toggleStylePopup() {
+            const popup = document.getElementById("style-popup");
+            popup.style.display = popup.style.display === "none" ? "block" : "none";
+        }
+
+        function setFontSize(size) {
+            const messages = document.querySelectorAll('.bot-message');
+            messages.forEach(msg => {
+                msg.classList.remove('size-small', 'size-medium', 'size-large');
+                msg.classList.add(`size-${size}`);
+            });
+        }
+
 
     </script>
 </body>

@@ -122,6 +122,17 @@ body {
   background-color: #e0e0e0;
 }
 
+/*키보드 설정*/
+.size-small {
+  font-size: 12px;
+}
+.size-medium {
+  font-size: 16px;
+}
+.size-large {
+  font-size: 20px;
+}
+
 /* 채팅창 컨테이너 크기 조정 */
 .chat-container {
   width: 500px;
