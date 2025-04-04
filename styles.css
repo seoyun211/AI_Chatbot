@@ -20,6 +20,20 @@
   z-index: 1000;
 }
 
+.settings-header {
+  background-color: #f0f0f0;
+  padding: 10px;
+  cursor: move;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  border-bottom: 1px solid #ccc;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+
 /* 다크 모드 스타일 (유튜브 다크모드 색상 참고) */
 .dark-mode {
   background-color: #0F0F0F;
