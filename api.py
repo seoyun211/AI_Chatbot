@@ -6,13 +6,14 @@ from openai import OpenAI, APITimeoutError
 import shutil
 from analy import run_pandas_code
 import time
+import httpx  # 비동기 HTTP 요청을 위한 라이브러리
 
 app = FastAPI()
 
 # CORS 설정
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["null"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -61,6 +62,7 @@ async def analyze(file: UploadFile, question: str = Form(...)):
             ],
             timeout=20
         )
+        
         summary = gpt_summary.choices[0].message.content
         print("✅ 요약 생성 완료")
 
@@ -133,3 +135,35 @@ async def analyze_file(file: UploadFile, question: str = Form(...)):
     analysis_result = messages.data[0].content[0].text.value
 
     return JSONResponse(content={"analysis_result": analysis_result})
+
+# 백준
+@app.get("/userinfo")
+async def get_user_info(boj_username: str):
+    try:
+        # solved.ac 사용자 정보 API 요청
+        url = f"https://solved.ac/api/v3/user/show?handle={boj_username}"
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url)
+
+        # 잘못된 사용자일 경우 404 반환
+        if response.status_code != 200:
+            return JSONResponse(content={"error": "사용자를 찾을 수 없습니다."}, status_code=404)
+
+        # 응답 데이터에서 필요한 항목 추출
+        data = response.json()
+        result = {
+            "handle": data["handle"],          # 사용자 아이디
+            "tier": data["tier"],              # 티어 (숫자 값, 티어 이름은 변환 필요)
+            "rating": data.get("rating", 0),   # 평점 (있을 경우)
+            "rank": data.get("rank", "알 수 없음"),  # 전역 랭킹
+            "solvedCount": data.get("solvedCount", 0),  # 푼 문제 수
+            "class": data.get("class", 0),     # 클래스 (solved.ac 기준)
+            "maxStreak": data.get("maxStreak", 0)  # 최장 연속 풀이일
+        }
+
+        return JSONResponse(content=result)
+
+    except Exception as e:
+        # 예외 발생 시 에러 메시지 반환
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+

@@ -91,6 +91,7 @@
         return;
       }
       localStorage.setItem('bojUsername', username);
+      fetchUserInfo(username);
       document.getElementById('intro-page').style.display = 'none';
       document.getElementById('chat-page').style.display = 'flex';
 
@@ -231,6 +232,22 @@
       inputBox.value = message;
       sendMessage();
     }
+    
+    // 백준
+    async function fetchUserInfo(username) {
+  try {
+    const res = await fetch(`http://127.0.0.1:8000/userinfo?boj_username=${username}`);
+    const data = await res.json();
+    if (data.error) {
+      alert(data.error);
+    } else {
+      displayMessage(`👤 닉네임: ${data.handle}\n🎖 티어: ${data.tier}\n📈 랭킹: ${data.rank}\n✅ 푼 문제 수: ${data.solvedCount}`, 'bot-message');
+    }
+  } catch (e) {
+    displayMessage("⚠ 사용자 정보를 불러오는 데 실패했습니다.", 'bot-message');
+  }
+}
+
   </script>
 </body>
 </html>
