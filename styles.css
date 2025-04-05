@@ -157,6 +157,28 @@ body, .chat-container, .sidebar, .settings-page {
   transition: background-color 0.3s, color 0.3s;
 }
 
+/* 기존 settings-header 스타일 유지 */
+.settings-header {
+  background-color: #f0f0f0;
+  padding: 10px;
+  cursor: move;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  border-bottom: 1px solid #ccc;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  color: #000; /* 기본 밝은 모드 텍스트 색상 */
+}
+
+/* 다크모드일 때 텍스트 색상 변경 */
+.dark-mode .settings-header {
+  background-color: #202020;
+  color: #ffffff;
+  border-bottom: 1px solid #444;
+}
+
 /* 사이드 메뉴 버튼 */
 .menu-button {
   position: absolute;
