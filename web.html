@@ -1,10 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Baekjoon Chatbot</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    .button-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .chat-button {
+      padding: 10px 15px;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .chat-button:hover {
+      background-color: #357ABD;
+    }
+  </style>
 </head>
 
 <body>
@@ -18,7 +41,6 @@
 
   <!-- 🤖 챗봇 화면 -->
   <div class="container" id="chat-page" style="display: none;">
-    <!-- 메뉴 버튼 -->
     <div class="menu-button" onclick="toggleSidebar()">&#9776;</div>
 
     <!-- 사이드바 -->
@@ -52,9 +74,7 @@
 
     <!-- 채팅창 -->
     <div class="chat-container">
-      <div class="chat-box" id="chat-box">
-        
-      </div>
+      <div class="chat-box" id="chat-box"></div>
       <textarea class="input-box" id="input-box" placeholder="메시지를 입력하세요..." rows="3"></textarea>
       <div class="file-voice-container">
         <input type="file" id="file-input" title="CSV 파일을 업로드하세요" />
@@ -64,7 +84,6 @@
   </div>
 
   <script>
-    // ▶ 아이디 입력 후 챗봇 페이지로 전환
     function startChat() {
       const username = document.getElementById('boj-username').value.trim();
       if (!username) {
@@ -74,13 +93,11 @@
       localStorage.setItem('bojUsername', username);
       document.getElementById('intro-page').style.display = 'none';
       document.getElementById('chat-page').style.display = 'flex';
-      
-      // 인사 메시지 + 버튼 출력
-      displayMessage(`${username}님, 어떤 것을 분석해 드릴까요?`, 'bot-message');
+
+      displayMessage(`${username}님, 무엇을 분석해 드릴까요?`, 'bot-message');
       showMainOptions();
     }
 
-    // ▶ 메시지 전송 처리
     async function sendMessage() {
       const inputBox = document.getElementById('input-box');
       const fileInput = document.getElementById('file-input');
@@ -107,7 +124,6 @@
       }
     }
 
-    // ▶ 공통 메시지 표시
     function displayMessage(msg, className) {
       const chatBox = document.getElementById('chat-box');
       const div = document.createElement('div');
@@ -117,7 +133,6 @@
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    // 엔터 키로 전송
     document.getElementById('input-box').addEventListener('keydown', function (e) {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
@@ -125,26 +140,24 @@
       }
     });
 
-    // 다크 모드 토글
     document.getElementById('dark-mode-toggle').addEventListener('change', function () {
       document.body.classList.toggle('dark-mode', this.checked);
       localStorage.setItem('darkMode', this.checked);
     });
 
-    // 초기 세팅
     window.onload = function () {
       const savedDark = localStorage.getItem('darkMode') === 'true';
       document.body.classList.toggle('dark-mode', savedDark);
       document.getElementById('dark-mode-toggle').checked = savedDark;
     };
 
-    // 설정 관련 함수들
     function toggleSidebar() {
       document.getElementById('sidebar').classList.toggle('open');
     }
 
     function clearChat() {
       document.getElementById('chat-box').innerHTML = '<div class="message bot-message">안녕하세요! 무엇을 도와드릴까요?</div>';
+      showMainOptions(); // 새 채팅 시 다시 버튼 보여줌
     }
 
     function openSettings() {
@@ -161,8 +174,7 @@
     }
 
     function setFontSize(size) {
-      const messages = document.querySelectorAll('.bot-message');
-      const userMessages = document.querySelectorAll('.user-message');
+      const messages = document.querySelectorAll('.bot-message, .user-message');
       messages.forEach(msg => {
         msg.classList.remove('size-small', 'size-medium', 'size-large');
         msg.classList.add(`size-${size}`);
@@ -183,8 +195,47 @@
       }
     }
 
-    
+    // ✅ 분석 버튼 UI 출력
+    function showMainOptions() {
+      const chatBox = document.getElementById('chat-box');
+
+      const botIntro = document.createElement('div');
+      botIntro.className = 'message bot-message';
+      botIntro.textContent = '🔍 무엇을 분석해드릴까요?';
+      chatBox.appendChild(botIntro);
+
+      const buttonContainer = document.createElement('div');
+      buttonContainer.className = 'button-container';
+
+      const buttons = [
+        { label: '📊 풀이 분포 보기', message: '풀이 분포 보기' },
+        { label: '📈 난이도 추세', message: '난이도 추세' },
+        { label: '🧠 알고리즘별 분석', message: '알고리즘별 분석' },
+        { label: '⏱ 평균 풀이 시간', message: '평균 풀이 시간' },
+      ];
+
+      buttons.forEach(btn => {
+        const button = document.createElement('button');
+        button.textContent = btn.label;
+        button.className = 'chat-button';
+        button.onclick = () => {
+          displayMessage(` ${btn.label}`, 'user-message');
+          sendAutoMessage(btn.message);
+          buttonContainer.remove();
+        };
+        buttonContainer.appendChild(button);
+      });
+
+      chatBox.appendChild(buttonContainer);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // ✅ 버튼 클릭 시 자동 메시지 전송
+    function sendAutoMessage(message) {
+      const inputBox = document.getElementById('input-box');
+      inputBox.value = message;
+      sendMessage();
+    }
   </script>
 </body>
-
 </html>
