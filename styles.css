@@ -153,6 +153,10 @@
   width: 100vw;
 }
 
+body, .chat-container, .sidebar, .settings-page {
+  transition: background-color 0.3s, color 0.3s;
+}
+
 /* 사이드 메뉴 버튼 */
 .menu-button {
   position: absolute;
