@@ -15,8 +15,8 @@
 
     .chat-button {
       padding: 10px 15px;
-      background-color: #4a90e2;
-      color: white;
+      background-color: #f5f5f5;
+      color: rgb(16, 43, 30);
       border: none;
       border-radius: 10px;
       font-size: 14px;
@@ -25,7 +25,7 @@
     }
 
     .chat-button:hover {
-      background-color: #357ABD;
+      background-color: #bdbdbd
     }
   </style>
 </head>
@@ -198,11 +198,6 @@
     // ✅ 분석 버튼 UI 출력
     function showMainOptions() {
       const chatBox = document.getElementById('chat-box');
-
-      const botIntro = document.createElement('div');
-      botIntro.className = 'message bot-message';
-      botIntro.textContent = '🔍 무엇을 분석해드릴까요?';
-      chatBox.appendChild(botIntro);
 
       const buttonContainer = document.createElement('div');
       buttonContainer.className = 'button-container';
