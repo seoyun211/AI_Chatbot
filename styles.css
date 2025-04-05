@@ -211,37 +211,11 @@ body {
   width: calc(100% - 24px);
 }
 
-/* 파일 선택 및 음성 인식 버튼을 수평으로 배치 */
-.file-voice-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
 /* 파일 선택 버튼 스타일 */
 #file-input {
   flex: 1;
   padding: 5px;
   font-size: 14px;
-}
-
-/* 음성 인식 버튼 스타일 */
-.voice-button {
-  background-color: #F1F8F2;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  padding: 10px;
-  cursor: pointer;
-  width: 40px;
-  height: 40px;
-  transition: background-color 0.3s ease;
-}
-
-.voice-button:hover {
-  background-color: #e6b800;
 }
 
 /* 전송 버튼 스타일 */

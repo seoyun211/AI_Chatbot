@@ -12,7 +12,7 @@
   <!-- 👤 백준 아이디 입력 화면 -->
   <div id="intro-page" style="text-align: center; margin-top: 100px;">
     <h2>👋 백준 아이디를 입력하세요</h2>
-    <input type="text" id="boj-username" placeholder="ex) joonas123" style="padding: 10px; font-size: 16px;" />
+    <input type="text" id="boj-username" placeholder="ex joonas123" style="padding: 10px; font-size: 16px;" />
     <br /><br />
     <button onclick="startChat()" style="padding: 10px 20px; font-size: 16px;">시작하기</button>
   </div>
@@ -54,12 +54,11 @@
     <!-- 채팅창 -->
     <div class="chat-container">
       <div class="chat-box" id="chat-box">
-        <div class="message bot-message">안녕하세요! 무엇을 도와드릴까요?</div>
+        
       </div>
       <textarea class="input-box" id="input-box" placeholder="메시지를 입력하세요..." rows="3"></textarea>
       <div class="file-voice-container">
         <input type="file" id="file-input" title="CSV 파일을 업로드하세요" />
-        <button class="voice-button" onclick="startSpeechRecognition()">🎤</button>
       </div>
       <button class="send-button" onclick="sendMessage()">전송</button>
     </div>
@@ -76,6 +75,10 @@
       localStorage.setItem('bojUsername', username);
       document.getElementById('intro-page').style.display = 'none';
       document.getElementById('chat-page').style.display = 'flex';
+      
+      // 인사 메시지 + 버튼 출력
+      displayMessage(`${username}님, 어떤 것을 분석해 드릴까요?`, 'bot-message');
+      showMainOptions();
     }
 
     // ▶ 메시지 전송 처리
@@ -160,6 +163,7 @@
 
     function setFontSize(size) {
       const messages = document.querySelectorAll('.bot-message');
+      const userMessages = document.querySelectorAll('.user-message');
       messages.forEach(msg => {
         msg.classList.remove('size-small', 'size-medium', 'size-large');
         msg.classList.add(`size-${size}`);
@@ -180,9 +184,7 @@
       }
     }
 
-    function startSpeechRecognition() {
-      alert("🎤 음성 인식 기능은 아직 구현 중이에요!");
-    }
+    
   </script>
 </body>
 
