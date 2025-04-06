@@ -94,11 +94,12 @@
         </div>
       </div>
       <div class="menu-item" onclick="toggleStylePopup()">🎹 키보드</div>
-      <div id="style-popup" style="display:none; position:fixed; top:60%; left:50%; transform:translate(-50%, -50%);
+      <div id="style-popup" style="display:none; position:fixed; top:60%; left:50%;
         background:white; padding:15px; border:1px solid #ccc; border-radius:10px;
         box-shadow:0 2px 10px rgba(0,0,0,0.2); z-index:1001; min-width: 260px;">
         <!-- 🔧 헤더 영역 -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <div class="popup-header" id="popup-drag-header"
+          style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: move;">
           <strong class="popup-title">💡 글씨 크기 변경</strong>
           <button onclick="closeStylePopup()"
             style="background:none; border:none; font-size: 16px; cursor:pointer;">❌</button>
@@ -301,6 +302,41 @@
         displayMessage("⚠ 사용자 정보를 불러오는 데 실패했습니다.", 'bot-message');
       }
     }
+
+    const settingsPage = document.getElementById("settings-page");
+    const settingsHeader = document.getElementById("settings-header");
+
+    let draggingSettings = false;
+    let offsetX_settings = 0;
+    let offsetY_settings = 0;
+
+    settingsHeader.addEventListener("mousedown", function (e) {
+      // 설정창의 현재 위치를 실제 좌표로 계산
+      const rect = settingsPage.getBoundingClientRect();
+
+      // transform을 없애고 현재 위치를 top/left로 고정
+      settingsPage.style.left = `${rect.left}px`;
+      settingsPage.style.top = `${rect.top}px`;
+      settingsPage.style.transform = "none"; // 중요!!
+
+      offsetX_settings = e.clientX - rect.left;
+      offsetY_settings = e.clientY - rect.top;
+      draggingSettings = true;
+    });
+
+    document.addEventListener("mousemove", function (e) {
+      if (!draggingSettings) return;
+
+      const x = e.clientX - offsetX_settings;
+      const y = e.clientY - offsetY_settings;
+
+      settingsPage.style.left = `${x}px`;
+      settingsPage.style.top = `${y}px`;
+    });
+
+    document.addEventListener("mouseup", function () {
+      draggingSettings = false;
+    });
 
   </script>
 </body>
