@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Baekjoon Chatbot</title>
   <link rel="stylesheet" href="styles.css" />
   <style>
@@ -58,10 +59,17 @@
         </div>
       </div>
       <div class="menu-item" onclick="toggleStylePopup()">🎹 키보드</div>
-      <div id="style-popup" style="display:none; position:fixed; top:60%; left:50%; transform:translate(-50%, -50%);
-        background:white; padding:15px; border:1px solid #ccc; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.2); z-index:1001;">
-        <strong>💡 글씨 크기 변경</strong>
-        <div style="margin-top: 10px; display: flex; gap: 10px;">
+      <div id="style-popup"
+        style="display:none; position:fixed; top:60%; left:50%; transform:translate(-50%, -50%);
+        background:white; padding:15px; border:1px solid #ccc; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.2); z-index:1001; min-width: 200px;">
+        <!-- 🔧 헤더 영역 -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <strong>💡 글씨 크기 변경</strong>
+          <button onclick="closeStylePopup()"
+            style="background:none; border:none; font-size: 16px; cursor:pointer;">❌</button>
+        </div>
+        <!-- 버튼 영역 -->
+        <div style="display: flex; gap: 10px;">
           <button onclick="setFontSize('small')">작게</button>
           <button onclick="setFontSize('medium')">보통</button>
           <button onclick="setFontSize('large')">크게</button>
@@ -205,20 +213,20 @@
 
       const buttonContainer = document.createElement('div');
       buttonContainer.className = 'button-container';
-      buttonContainer.style.marginTop = '15px'; 
-      buttonContainer.style.marginBottom = '15px';  
+      buttonContainer.style.marginTop = '15px';
+      buttonContainer.style.marginBottom = '15px';
 
 
       const buttons = [
-      { label: '👤 내 백준 정보 보기', message: '내 백준 정보 보기' },
-        {label: '📊 풀이 분포 보기', message: '풀이 분포 보기' },
+        { label: '👤 내 백준 정보 보기', message: '내 백준 정보 보기' },
+        { label: '📊 풀이 분포 보기', message: '풀이 분포 보기' },
         { label: '📈 난이도 추세', message: '난이도 추세' },
         { label: '🏆 도전 과제 생성', message: '도전 과제 생성' },
         { label: '🧠 알고리즘별 분석', message: '알고리즘별 분석' },
         { label: '⏱ 평균 풀이 시간', message: '평균 풀이 시간' },
         { label: '🤖 AI 문제 추천', message: 'AI문제 추천' },
         { label: '👑 랭킹 시뮬레이션', message: '랭킹 시뮬레이션' },
-        
+
       ];
 
       buttons.forEach(btn => {
@@ -242,22 +250,27 @@
       inputBox.value = message;
       sendMessage(true);
     }
-    
+
+    function closeStylePopup() {
+      document.getElementById("style-popup").style.display = "none";
+    }
+
     // 백준
     async function fetchUserInfo(username) {
-  try {
-    const res = await fetch(`http://127.0.0.1:8000/userinfo?boj_username=${username}`);
-    const data = await res.json();
-    if (data.error) {
-      alert(data.error);
-    } else {
-      displayMessage(`👤 닉네임: ${data.handle}\n🎖 티어: ${data.tier}\n📈 랭킹: ${data.rank}\n✅ 푼 문제 수: ${data.solvedCount}`, 'bot-message');
+      try {
+        const res = await fetch(`http://127.0.0.1:8000/userinfo?boj_username=${username}`);
+        const data = await res.json();
+        if (data.error) {
+          alert(data.error);
+        } else {
+          displayMessage(`👤 닉네임: ${data.handle}\n🎖 티어: ${data.tier}\n📈 랭킹: ${data.rank}\n✅ 푼 문제 수: ${data.solvedCount}`, 'bot-message');
+        }
+      } catch (e) {
+        displayMessage("⚠ 사용자 정보를 불러오는 데 실패했습니다.", 'bot-message');
+      }
     }
-  } catch (e) {
-    displayMessage("⚠ 사용자 정보를 불러오는 데 실패했습니다.", 'bot-message');
-  }
-}
 
   </script>
 </body>
+
 </html>
