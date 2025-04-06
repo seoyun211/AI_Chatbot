@@ -83,9 +83,9 @@
         </div>
       </div>
       <div class="menu-item" onclick="toggleStylePopup()">🎹 키보드</div>
-      <div id="style-popup"
-        style="display:none; position:fixed; top:60%; left:50%; transform:translate(-50%, -50%);
-        background:white; padding:15px; border:1px solid #ccc; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.2); z-index:1001; min-width: 200px;">
+      <div id="style-popup" style="display:none; position:fixed; top:60%; left:50%; transform:translate(-50%, -50%);
+        background:white; padding:15px; border:1px solid #ccc; border-radius:10px;
+        box-shadow:0 2px 10px rgba(0,0,0,0.2); z-index:1001; min-width: 260px;">
         <!-- 🔧 헤더 영역 -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
           <strong class="popup-title">💡 글씨 크기 변경</strong>
@@ -93,7 +93,7 @@
             style="background:none; border:none; font-size: 16px; cursor:pointer;">❌</button>
         </div>
         <!-- 버튼 영역 -->
-        <div style="display: flex; gap: 10px;">
+        <div class="button-group">
           <button class="font-button" onclick="setFontSize('small')">작게</button>
           <button class="font-button" onclick="setFontSize('medium')">보통</button>
           <button class="font-button" onclick="setFontSize('large')">크게</button>
