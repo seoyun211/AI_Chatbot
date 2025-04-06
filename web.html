@@ -7,6 +7,30 @@
   <title>Baekjoon Chatbot</title>
   <link rel="stylesheet" href="styles.css" />
   <style>
+    /* 기존 style-popup은 밝은 테마 */
+    #style-popup {
+      background: white;
+      color: black;
+      /* ...생략 */
+    }
+
+    /* 다크 모드 전용 style-popup */
+    body.dark-mode #style-popup {
+      background: #333;
+      color: #fff;
+      border: 2px solid #888;
+    }
+
+    body.dark-mode #style-popup button {
+      background-color: #444;
+      color: #fff;
+      border: 1px solid #aaa;
+    }
+
+    body.dark-mode #style-popup button:hover {
+      background-color: #555;
+    }
+
     .button-container {
       display: flex;
       flex-wrap: wrap;
@@ -64,15 +88,15 @@
         background:white; padding:15px; border:1px solid #ccc; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.2); z-index:1001; min-width: 200px;">
         <!-- 🔧 헤더 영역 -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-          <strong>💡 글씨 크기 변경</strong>
+          <strong class="popup-title">💡 글씨 크기 변경</strong>
           <button onclick="closeStylePopup()"
             style="background:none; border:none; font-size: 16px; cursor:pointer;">❌</button>
         </div>
         <!-- 버튼 영역 -->
         <div style="display: flex; gap: 10px;">
-          <button onclick="setFontSize('small')">작게</button>
-          <button onclick="setFontSize('medium')">보통</button>
-          <button onclick="setFontSize('large')">크게</button>
+          <button class="font-button" onclick="setFontSize('small')">작게</button>
+          <button class="font-button" onclick="setFontSize('medium')">보통</button>
+          <button class="font-button" onclick="setFontSize('large')">크게</button>
         </div>
       </div>
       <label><input type="checkbox" id="dark-mode-toggle" /> 다크 모드 활성화</label><br />

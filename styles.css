@@ -316,3 +316,36 @@ body, .chat-container, .sidebar, .settings-page {
 .send-button:hover {
   background-color: #5A8A5D;
 }
+
+/* 다크 모드일 때 style-popup도 어둡게 바꾸기 */
+body.dark-mode #style-popup {
+  background: #333;           /* 어두운 배경 */
+  color: #fff;                /* 밝은 글자 */
+  border: 2px solid #888;
+}
+
+body.dark-mode #style-popup button {
+  background-color: #444 !important;
+  color: #fff !important;
+  border: 1px solid #aaa !important;
+  font-weight: bold !important;
+}
+
+body.dark-mode #style-popup button:hover {
+  background-color: #555;
+}
+
+/* 💡 글씨 크기 변경 타이틀 스타일 */
+.popup-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #000000;
+  display: block;
+  margin-bottom: 15px;
+}
+
+/* 다크 모드일 때 💡 타이틀 스타일 */
+.dark-mode .popup-title {
+  color: #000000;
+  font-size: 17px;
+}
