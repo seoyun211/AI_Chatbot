@@ -205,6 +205,9 @@
 
       const buttonContainer = document.createElement('div');
       buttonContainer.className = 'button-container';
+      buttonContainer.style.marginTop = '15px'; 
+      buttonContainer.style.marginBottom = '15px';  
+
 
       const buttons = [
       { label: '👤 내 백준 정보 보기', message: '내 백준 정보 보기' },
@@ -225,7 +228,6 @@
         button.onclick = () => {
           displayMessage(` ${btn.label}`, 'user-message');
           sendAutoMessage(btn.message);
-          buttonContainer.remove();
         };
         buttonContainer.appendChild(button);
       });
