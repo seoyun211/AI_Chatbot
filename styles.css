@@ -5,69 +5,69 @@
   box-sizing: border-box;
 }
 
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #d4e2d2;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
+body {
+  font-family: Arial, sans-serif;
+  background-color: #d4e2d2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
 
-    .intro-container {
-      background: white;
-      padding: 40px;
-      border-radius: 15px;
-      box-shadow: 0  4px 15px rgba(0, 0, 0, 0.15);
-      text-align: center;
-      max-width: 400px;
-      width: 100%;
-    }
+.intro-container {
+  background: white;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+}
 
-    .intro-container h2 {
-      margin-bottom: 20px;
-      font-size: 24px;
-      color: #2e4e2e;
-      font-weight: bold;
-    }
+.intro-container h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #2e4e2e;
+  font-weight: bold;
+}
 
-    .intro-container input {
-      width: 100%;
-      padding: 15px;
-      font-size: 16px;
-      border: 1px solid  #6C9D6F;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      transition: border-color 0.3s;
-    }
+.intro-container input {
+  width: 100%;
+  padding: 15px;
+  font-size: 16px;
+  border: 1px solid #6C9D6F;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  transition: border-color 0.3s;
+}
 
-    .intro-container input:focus {
-      border-color: #338f76;
-      outline: none;
-    }
+.intro-container input:focus {
+  border-color: #338f76;
+  outline: none;
+}
 
-    .intro-container button {
-      width: 100%;
-      padding: 15px;
-      font-size: 16px;
-      color: white;
-      background: #6C9D6F;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
+.intro-container button {
+  width: 100%;
+  padding: 15px;
+  font-size: 16px;
+  color: white;
+  background: #6C9D6F;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
 
-    .intro-container button:hover {
-      background: #4b7b58;
-    }
+.intro-container button:hover {
+  background: #4b7b58;
+}
 
-    .intro-container p {
-      margin-top: 15px;
-      font-size: 14px;
-      color: #666;
-    }
+.intro-container p {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #666;
+}
 
 
 
@@ -84,19 +84,6 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   border-radius: 8px;
   z-index: 1000;
-}
-
-.settings-header {
-  background-color: #f0f0f0;
-  padding: 10px;
-  cursor: move;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: bold;
-  border-bottom: 1px solid #ccc;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
 }
 
 
@@ -153,7 +140,10 @@
   width: 100vw;
 }
 
-body, .chat-container, .sidebar, .settings-page {
+body,
+.chat-container,
+.sidebar,
+.settings-page {
   transition: background-color 0.3s, color 0.3s;
 }
 
@@ -169,7 +159,8 @@ body, .chat-container, .sidebar, .settings-page {
   border-bottom: 1px solid #ccc;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
-  color: #000; /* 기본 밝은 모드 텍스트 색상 */
+  color: #000;
+  /* 기본 밝은 모드 텍스트 색상 */
 }
 
 /* 다크모드일 때 텍스트 색상 변경 */
@@ -221,9 +212,11 @@ body, .chat-container, .sidebar, .settings-page {
 .size-small {
   font-size: 12px;
 }
+
 .size-medium {
   font-size: 16px;
 }
+
 .size-large {
   font-size: 20px;
 }
@@ -319,8 +312,10 @@ body, .chat-container, .sidebar, .settings-page {
 
 /* 다크 모드일 때 style-popup도 어둡게 바꾸기 */
 body.dark-mode #style-popup {
-  background: #333;           /* 어두운 배경 */
-  color: #fff;                /* 밝은 글자 */
+  background: #333;
+  /* 어두운 배경 */
+  color: #fff;
+  /* 밝은 글자 */
   border: 2px solid #888;
 }
 
@@ -335,7 +330,7 @@ body.dark-mode #style-popup button:hover {
   background-color: #555;
 }
 
-/* 💡 글씨 크기 변경 타이틀 스타일 */ 
+/* 💡 글씨 크기 변경 타이틀 스타일 */
 .popup-title {
   font-size: 16px;
   font-weight: bold;
@@ -388,16 +383,20 @@ body.dark-mode #style-popup button:hover {
 #style-popup .button-group {
   display: flex;
   justify-content: center;
-  gap: 10px;  /* 버튼 사이 여백 */
-  flex-wrap: nowrap; /* 줄바꿈 방지 */
+  gap: 10px;
+  /* 버튼 사이 여백 */
+  flex-wrap: nowrap;
+  /* 줄바꿈 방지 */
 }
 
 #style-popup {
-  min-width: 260px; /* 원래 200px에서 증가 */
+  min-width: 260px;
+  /* 원래 200px에서 증가 */
 }
 
 .font-button {
-  white-space: nowrap;  /* 버튼 내부 줄바꿈 방지 */
+  white-space: nowrap;
+  /* 버튼 내부 줄바꿈 방지 */
   min-width: 60px;
   padding: 8px 12px;
   font-size: 14px;
@@ -405,5 +404,59 @@ body.dark-mode #style-popup button:hover {
   background-color: #222;
   color: white;
   border: none;
+  cursor: pointer;
+}
+
+.goal-container {
+  padding: 15px;
+  background-color: #f8f8f8;
+  margin: 10px;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+.progress-bar {
+  width: 100%;
+  background-color: #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+  height: 20px;
+  margin-top: 5px;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background-color: #4caf50;
+  transition: width 0.5s ease-in-out;
+}
+
+.modal {
+  display: none;
+  /* 초기엔 숨김 */
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  /* 어두운 배경 */
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  position: relative;
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
   cursor: pointer;
 }

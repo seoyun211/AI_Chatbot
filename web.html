@@ -83,6 +83,7 @@
     <div class="sidebar" id="sidebar">
       <div class="menu-item" onclick="clearChat()">📄 새 채팅</div>
       <div class="menu-item" onclick="openSettings()">⚙ 설정</div>
+      <div class="menu-item" onclick="openGoalModal()">🎯 목표 설정</div>
     </div>
 
     <!-- 설정 페이지 -->
@@ -121,6 +122,26 @@
       <div class="chat-box" id="chat-box"></div>
       <textarea class="input-box" id="input-box" placeholder="메시지를 입력하세요." rows="3"></textarea>
       <button class="send-button" onclick="sendMessage()">전송</button>
+    </div>
+    <!-- 목표 설정 팝업 모달 -->
+    <div id="goal-modal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeGoalModal()">&times;</span>
+        <h3>🎯 오늘의 목표 설정</h3>
+        <label>오늘 목표 문제 수:
+          <input type="number" id="daily-goal" placeholder="예: 5" />
+        </label>
+        <button onclick="saveGoal()">저장</button>
+
+        <div style="margin-top: 20px;">
+          <p>현재 푼 문제 수: <span id="solved-count">0</span></p>
+          <p>진행률:</p>
+          <div style="background: #eee; border-radius: 10px; height: 20px; width: 100%;">
+            <div id="goal-progress-bar" style="height: 100%; background: #4caf50; width: 0%; border-radius: 10px;">
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -338,6 +359,39 @@
       draggingSettings = false;
     });
 
+    let solvedToday = 0;
+    let dailyGoal = 0;
+
+    function toggleGoalPanel() {
+      const panel = document.getElementById("goal-panel");
+      panel.style.display = panel.style.display === "none" ? "block" : "none";
+    }
+
+    function saveGoal() {
+      const input = document.getElementById("daily-goal").value;
+      dailyGoal = parseInt(input);
+      updateProgressBar();
+    }
+
+    function updateSolvedCount(count) {
+      solvedToday = count;
+      document.getElementById("solved-count").innerText = solvedToday;
+      updateProgressBar();
+    }
+
+    function updateProgressBar() {
+      if (dailyGoal === 0) return;
+      const percent = Math.min((solvedToday / dailyGoal) * 100, 100);
+      document.getElementById("goal-progress-bar").style.width = percent + "%";
+    }
+
+    function openGoalModal() {
+      document.getElementById("goal-modal").style.display = "block";
+    }
+
+    function closeGoalModal() {
+      document.getElementById("goal-modal").style.display = "none";
+    }
   </script>
 </body>
 
