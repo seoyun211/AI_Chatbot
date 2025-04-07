@@ -90,7 +90,7 @@ body {
 /* 다크 모드 스타일 (유튜브 다크모드 색상 참고) */
 .dark-mode {
   background-color: #0F0F0F;
-  color: #FFFFFF;
+  color: #272424;
 }
 
 .dark-mode .settings-page,
@@ -102,21 +102,19 @@ body {
 }
 
 .dark-mode .menu-button,
-.dark-mode .send-button,
-.dark-mode .voice-button {
-  background-color: #282828;
+.dark-mode .send-button {
+  background-color: #0F0F0F;
   color: #FFFFFF;
   border-color: #3D3D3D;
 }
 
 .dark-mode .menu-button:hover,
-.dark-mode .send-button:hover,
-.dark-mode .voice-button:hover {
+.dark-mode .send-button:hover {
   background-color: #3D3D3D;
 }
 
 .dark-mode .bot-message {
-  background-color: #263238;
+  background-color: #3b3e3f;
   color: #E0E0E0;
 }
 
@@ -127,8 +125,8 @@ body {
 }
 
 .dark-mode .send-button {
-  background-color: #1E88E5;
-  border: 2px solid #1E88E5;
+  background-color:  #3b3e3f;
+  border: 2px solid #3b3e3f;
 }
 
 .container {
