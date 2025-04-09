@@ -187,7 +187,7 @@
       formData.append('question', message);
       formData.append('boj_username', bojUsername);
 
-      const url = fileInput.files.length > 0 ? 'http://127.0.0.1:8000/analyze' : 'http://127.0.0.1:8000/chat';
+      const url = fileInput && fileInput.files && fileInput.files.length > 0 ? 'http://127.0.0.1:8000/analyze' : 'http://127.0.0.1:8000/chat';
 
       try {
         const response = await fetch(url, { method: 'POST', body: formData });
@@ -306,11 +306,24 @@
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    // ✅ 버튼 클릭 시 자동 메시지 전송
+    // ✅ 버튼 클릭 시 자동 메시지 전송 
     function sendAutoMessage(message) {
       const inputBox = document.getElementById('input-box');
       inputBox.value = message;
+
+      if (message === "내 백준 정보 보기") {
+      const username = localStorage.getItem('bojUsername');
+      if (username) {
+        fetchUserInfo(username);
+      } else {
+        displayMessage("⚠ 사용자 정보를 찾을 수 없습니다.", 'bot-message');
+        } 
+      }else if (message === "AI문제 추천") {
+    recommendProblem();  // AI문제 추천 시 recommendProblem 호출
+      } else {
       sendMessage(true);
+      }
+      
     }
 
     function closeStylePopup() {
@@ -331,7 +344,31 @@
         displayMessage("⚠ 사용자 정보를 불러오는 데 실패했습니다.", 'bot-message');
       }
     }
+    // 추천 API를 호출하는 함수 구현
+async function recommendProblem() {
+  const bojUsername = localStorage.getItem('bojUsername');
+  if (!bojUsername) {
+    displayMessage("⚠ 사용자 정보가 없습니다.", 'bot-message');
+    return;
+  }
 
+  try {
+    const res = await fetch(`http://127.0.0.1:8000/recommend?boj_username=${bojUsername}`);
+    const data = await res.json();
+
+    if (data.error) {
+      displayMessage(data.error, 'bot-message');
+    } else {
+      const problemLink = `https://www.acmicpc.net/problem/${data.problemId}`;
+      displayMessage(
+        `🤖 추천 문제:\n문제 번호: ${data.problemId}\n제목: ${data.title}\n티어: ${data.tier}\n👉 [문제 바로가기](${problemLink})`,
+        'bot-message'
+      );
+    }
+  } catch (error) {
+    displayMessage("⚠ 추천 문제를 가져오는 중 오류가 발생했습니다.", 'bot-message');
+  }
+}
     const settingsPage = document.getElementById("settings-page");
     const settingsHeader = document.getElementById("settings-header");
 
