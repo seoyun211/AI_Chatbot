@@ -489,7 +489,7 @@ body.dark-mode #style-popup button:hover {
 
 /* CSS */
 .boj-card {
-  background-color: #9cd8b0;
+  background-color: #ffffff;
   border-radius: 12px;
   padding: 12px 16px;
   max-width: 500px;
@@ -502,6 +502,7 @@ body.dark-mode #style-popup button:hover {
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 10px;
+  color: #222222;
 }
 
 .boj-info-grid {
@@ -513,17 +514,17 @@ body.dark-mode #style-popup button:hover {
 .info-item {
   flex: 1 1 48%;
   font-size: 14px;
-  background: #ffffff;
+  background: #50986e;
   padding: 6px 10px;
   border-radius: 8px;
   box-shadow: inset 0 0 3px rgba(43, 142, 114, 0.05);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #222;
+  color: white; 
 }
 
 .info-item strong {
   font-weight: 600;
-  color: #111; 
+  color: white;  
 }
