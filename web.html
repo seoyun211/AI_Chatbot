@@ -202,7 +202,7 @@
       const chatBox = document.getElementById('chat-box');
       const div = document.createElement('div');
       div.className = `message ${className}`;
-      div.textContent = msg;
+      div.innerHTML = msg;
       chatBox.appendChild(div);
       chatBox.scrollTop = chatBox.scrollHeight;
     }
@@ -338,8 +338,21 @@
         if (data.error) {
           alert(data.error);
         } else {
-          displayMessage(`👤 닉네임: ${data.handle}\n🎖 티어: ${data.tier}\n📈 랭킹: ${data.rank}\n✅ 푼 문제 수: ${data.solvedCount}`, 'bot-message');
-        }
+          const cardHTML = `
+        <div class="boj-card">
+          <div class="boj-card-header">👤 내 백준 정보</div>
+          <div class="boj-info-grid">
+            <div class="info-item">🎖 티어:<strong>3</strong></div>
+            <div class="info-item">📈 랭킹:<strong>140074</strong></div>
+            <div class="info-item">✅ 푼 문제 수:<strong>36</strong></div>
+            <div class="info-item">🏫 클래스:<strong>1</strong></div>
+            <div class="info-item">🔥 최장 스트릭:<strong>0일</strong></div>
+            <div class="info-item">📊 실력 점수:<strong>104점</strong></div>
+          </div>
+        </div>
+      `;
+      displayMessage(cardHTML, 'bot-message');  // HTML 출력 함수
+    }
       } catch (e) {
         displayMessage("⚠ 사용자 정보를 불러오는 데 실패했습니다.", 'bot-message');
       }
