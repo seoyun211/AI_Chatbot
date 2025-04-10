@@ -161,7 +161,6 @@
         return;
       }
       localStorage.setItem('bojUsername', username);
-      fetchUserInfo(username);
       document.getElementById('intro-page').style.display = 'none';
       document.getElementById('chat-page').style.display = 'flex';
 
@@ -287,8 +286,8 @@
         { label: '🧠 알고리즘별 분석', message: '알고리즘별 분석' },
         { label: '⏱ 평균 풀이 시간', message: '평균 풀이 시간' },
         { label: '🤖 AI 문제 추천', message: 'AI문제 추천' },
+        { label: '🎲 랜덤 문제 추천', message: '랜덤 문제 추천' },
         { label: '👑 랭킹 시뮬레이션', message: '랭킹 시뮬레이션' },
-
       ];
 
       buttons.forEach(btn => {
@@ -318,8 +317,8 @@
       } else {
         displayMessage("⚠ 사용자 정보를 찾을 수 없습니다.", 'bot-message');
         } 
-      }else if (message === "AI문제 추천") {
-    recommendProblem();  // AI문제 추천 시 recommendProblem 호출
+      }else if (message === "랜덤 문제 추천") {
+    recommendProblem();  // 랜덤 문제 추천 시 recommendProblem 호출
       } else {
       sendMessage(true);
       }
@@ -330,7 +329,7 @@
       document.getElementById("style-popup").style.display = "none";
     }
 
-    // 백준
+    // 내정보
     async function fetchUserInfo(username) {
       try {
         const res = await fetch(`http://127.0.0.1:8000/userinfo?boj_username=${username}`);
@@ -357,7 +356,7 @@
         displayMessage("⚠ 사용자 정보를 불러오는 데 실패했습니다.", 'bot-message');
       }
     }
-    // 추천 API를 호출하는 함수 구현
+    // 랜덤문제추천
 async function recommendProblem() {
   const bojUsername = localStorage.getItem('bojUsername');
   if (!bojUsername) {
