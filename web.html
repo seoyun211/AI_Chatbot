@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Baekjoon Chatbot</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     /* 기존 style-popup은 밝은 테마 */
     #style-popup {
@@ -317,8 +318,10 @@
       } else {
         displayMessage("⚠ 사용자 정보를 찾을 수 없습니다.", 'bot-message');
         } 
-      }else if (message === "랜덤 문제 추천") {
-    recommendProblem();  // 랜덤 문제 추천 시 recommendProblem 호출
+      } else if (message === "랜덤 문제 추천") {
+        recommendProblem();  // 랜덤 문제 추천 시 recommendProblem 호출
+      } else if (message === "풀이 분포 보기") {
+        showDistribution();
       } else {
       sendMessage(true);
       }
@@ -339,14 +342,14 @@
         } else {
           const cardHTML = `
         <div class="boj-card">
-          <div class="boj-card-header">👤 내 백준 정보</div>
+          <div class="boj-card-header">👤 ${username}님의 백준 정보</div>
           <div class="boj-info-grid">
-            <div class="info-item">🎖 티어:<strong>3</strong></div>
-            <div class="info-item">📈 랭킹:<strong>140074</strong></div>
-            <div class="info-item">✅ 푼 문제 수:<strong>36</strong></div>
-            <div class="info-item">🏫 클래스:<strong>1</strong></div>
-            <div class="info-item">🔥 최장 스트릭:<strong>0일</strong></div>
-            <div class="info-item">📊 실력 점수:<strong>104점</strong></div>
+            <div class="info-item">🎖 티어:<strong>${data.tier}</strong></div>
+            <div class="info-item">📈 랭킹:<strong>${data.rank}</strong></div>
+            <div class="info-item">✅ 푼 문제 수:<strong>${data.solved_count}</strong></div>
+            <div class="info-item">🏫 클래스:<strong>${data.class}</strong></div>
+            <div class="info-item">🔥 최장 스트릭:<strong>${data.max_streak}</strong></div>
+            <div class="info-item">📊 실력 점수:<strong>${data.rating}</strong></div>
           </div>
         </div>
       `;
@@ -422,6 +425,79 @@ async function recommendProblem() {
     displayMessage("⚠ 추천 문제를 가져오는 중 오류가 발생했습니다.", 'bot-message');
   }
 }
+let chartInstance = null;  // 전역으로 Chart 인스턴스를 저장
+
+async function showDistribution() {
+  const bojUsername = localStorage.getItem('bojUsername');
+  if (!bojUsername) {
+    displayMessage("⚠ 사용자 정보가 없습니다.", 'bot-message');
+    return;
+  }
+
+  try {
+    const res = await fetch(`http://127.0.0.1:8000/distribution?boj_username=${bojUsername}`);
+    const data = await res.json();
+
+    if (data.error) {
+      displayMessage(data.error, 'bot-message');
+      return;
+    }
+
+    const dist = data.distribution;
+
+    const canvasId = 'difficulty-chart';
+    const chartHtml = `
+      <div style="max-width: 500px; margin-top: 16px;">
+        <h4>📊 난이도 별 풀이 분포</h4>
+        <canvas id="${canvasId}" width="400" height="300"></canvas>
+      </div>
+    `;
+    displayMessage(chartHtml, 'bot-message');
+
+    // DOM 그려진 다음 안전하게 실행
+    setTimeout(() => {
+      const ctx = document.getElementById(canvasId)?.getContext('2d');
+      if (!ctx) {
+        console.error("🎯 canvas 찾을 수 없음");
+        return;
+      }
+
+      // 이전 차트 인스턴스 제거
+      if (chartInstance !== null) {
+        chartInstance.destroy();
+      }
+
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(dist).map(lv => `LV.${lv}`),
+          datasets: [{
+            label: '풀이 수',
+            data: Object.values(dist),
+            backgroundColor: '#4CAF50',
+            borderRadius: 8,
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { stepSize: 1 }
+            }
+          }
+        }
+      });
+
+    }, 150);  // 살짝 여유를 둬서 DOM 생성 기다림
+
+  } catch (err) {
+    displayMessage("⚠ 분포 데이터를 불러오는 데 실패했습니다.", 'bot-message');
+  }
+}
+
+
     const settingsPage = document.getElementById("settings-page");
     const settingsHeader = document.getElementById("settings-header");
 

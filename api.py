@@ -3,6 +3,9 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from openai import OpenAI, APITimeoutError
+from matplotlib import pyplot as plt
+from io import BytesIO
+import base64
 import shutil
 from analy import run_pandas_code
 import httpx
@@ -99,13 +102,12 @@ async def get_user_info(boj_username: str):
 
     data = response.json()
     result = {
-        "handle": data["handle"],
-        "tier": data["tier"],
-        "rating": data.get("rating", 0),
-        "rank": data.get("rank", "알 수 없음"),
-        "solvedCount": data.get("solvedCount", 0),
-        "class": data.get("class", 0),
-        "maxStreak": data.get("maxStreak", 0)
+        "tier": data.get("tier"),
+        "rank": data.get("rank"),
+        "solved_count": data.get("solvedCount"),  
+        "class": data.get("class"),
+        "max_streak": data.get("maxStreak"),       
+        "rating": data.get("rating")
     }
 
     return JSONResponse(content=result)
@@ -201,3 +203,28 @@ async def recommend_ai_problem(boj_username: str):
     
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+    
+#풀이분포보기
+@app.get("/distribution")
+async def get_solved_distribution(boj_username: str):
+    url = f"https://solved.ac/api/v3/user/problem_stats?handle={boj_username}"
+    async with httpx.AsyncClient() as client:
+        res = await client.get(url)
+
+    if res.status_code != 200:
+        return JSONResponse(content={"error": "사용자 데이터를 가져올 수 없습니다."}, status_code=404)
+
+    try:
+        stats = res.json()
+    except Exception as e:
+        return JSONResponse(content={"error": f"데이터 파싱 중 오류 발생: {e}"}, status_code=500)
+
+    level_counts = [0] * 31  # Lv.0 ~ Lv.30
+    for item in stats:
+        level = item.get("level")
+        count = item.get("count", 0)
+        if level is not None and 0 <= level <= 30:
+            level_counts[level] += count
+
+    levels = [f"Lv.{i}" for i in range(31)]
+    return JSONResponse(content={"levels": levels, "counts": level_counts})
