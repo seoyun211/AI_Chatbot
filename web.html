@@ -340,26 +340,39 @@
         if (data.error) {
           alert(data.error);
         } else {
-          const cardHTML = `
-        <div class="boj-card">
-          <div class="boj-card-header">👤 ${username}님의 백준 정보</div>
-          <div class="boj-info-grid">
-            <div class="info-item">🎖 티어:<strong>${data.tier}</strong></div>
-            <div class="info-item">📈 랭킹:<strong>${data.rank}</strong></div>
-            <div class="info-item">✅ 푼 문제 수:<strong>${data.solved_count}</strong></div>
-            <div class="info-item">🏫 클래스:<strong>${data.class}</strong></div>
-            <div class="info-item">🔥 최장 스트릭:<strong>${data.max_streak}</strong></div>
-            <div class="info-item">📊 실력 점수:<strong>${data.rating}</strong></div>
+
+          const tierMap = [
+            "Unrated",
+            "Bronze V", "Bronze IV", "Bronze III", "Bronze II", "Bronze I",
+            "Silver V", "Silver IV", "Silver III", "Silver II", "Silver I",
+            "Gold V", "Gold IV", "Gold III", "Gold II", "Gold I",
+            "Platinum V", "Platinum IV", "Platinum III", "Platinum II", "Platinum I",
+            "Diamond V", "Diamond IV", "Diamond III", "Diamond II", "Diamond I",
+            "Ruby V", "Ruby IV", "Ruby III", "Ruby II", "Ruby I",
+            "Master", "Grandmaster", "Challenger"
+          ];
+          const userTierName = tierMap[data.tier] || "Unknown";
+
+        const cardHTML = `
+          <div class="boj-card">
+            <div class="boj-card-header">👤 ${username}님의 백준 정보</div>
+            <div class="boj-info-grid">
+              <div class="info-item">🎖 티어:<strong>${userTierName}</strong></div>
+              <div class="info-item">📈 랭킹:<strong>${data.rank}</strong></div>
+              <div class="info-item">✅ 푼 문제 수:<strong>${data.solved_count}</strong></div>
+              <div class="info-item">🏫 클래스:<strong>${data.class}</strong></div>
+              <div class="info-item">🔥 최장 스트릭:<strong>${data.max_streak}</strong></div>
+              <div class="info-item">📊 실력 점수:<strong>${data.rating}</strong></div>
+            </div>
           </div>
-        </div>
-      `;
+        `;
       displayMessage(cardHTML, 'bot-message');  // HTML 출력 함수
     }
-      } catch (e) {
-        displayMessage("⚠ 사용자 정보를 불러오는 데 실패했습니다.", 'bot-message');
-      }
-    }
-    // 랜덤문제추천
+  } catch (e) {
+    displayMessage("⚠ 사용자 정보를 불러오는 데 실패했습니다.", 'bot-message');
+  }
+}
+// 랜덤문제추천
 async function recommendProblem() {
   const bojUsername = localStorage.getItem('bojUsername');
   if (!bojUsername) {
