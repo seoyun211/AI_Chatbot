@@ -443,7 +443,12 @@ async function showDistribution() {
       return;
     }
 
-    const dist = data.distribution;
+    // ✅ 수정된 부분: 백엔드 응답 데이터 필드 정확히 맞춤
+    const levels = data.levels;
+    const counts = data.counts;
+
+    console.log("📊 levels", levels);
+    console.log("📊 counts", counts);
 
     const canvasId = 'difficulty-chart';
     const chartHtml = `
@@ -458,7 +463,7 @@ async function showDistribution() {
     setTimeout(() => {
       const ctx = document.getElementById(canvasId)?.getContext('2d');
       if (!ctx) {
-        console.error("🎯 canvas 찾을 수 없음");
+        console.error("🎯 canvas를 찾을 수 없습니다.");
         return;
       }
 
@@ -468,34 +473,40 @@ async function showDistribution() {
       }
 
       chartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: Object.keys(dist).map(lv => `LV.${lv}`),
-          datasets: [{
-            label: '풀이 수',
-            data: Object.values(dist),
-            backgroundColor: '#4CAF50',
-            borderRadius: 8,
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: { stepSize: 1 }
-            }
-          }
+  type: 'bar',
+  data: {
+    labels: levels,
+    datasets: [{
+      label: '풀이한 문제 수',
+      data: counts,
+      backgroundColor: '#4CAF50',
+      borderRadius: 8,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: {
+        beginAtZero: true,
+        // ✅ 여기 추가: 최대값 설정 (자동 최대값이 너무 작을 때 대비)
+        suggestedMax: Math.max(...counts) + 10,  // 최댓값 + 여유
+        ticks: {
+          stepSize: 1
         }
-      });
+      }
+    }
+  }
+});
 
-    }, 150);  // 살짝 여유를 둬서 DOM 생성 기다림
+
+    }, 150);  // DOM 생성 대기 시간
 
   } catch (err) {
     displayMessage("⚠ 분포 데이터를 불러오는 데 실패했습니다.", 'bot-message');
   }
 }
+
 
 
     const settingsPage = document.getElementById("settings-page");

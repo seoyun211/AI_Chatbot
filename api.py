@@ -215,16 +215,17 @@ async def get_solved_distribution(boj_username: str):
         return JSONResponse(content={"error": "사용자 데이터를 가져올 수 없습니다."}, status_code=404)
 
     try:
-        stats = res.json()
+        stats = res.json()  # 이건 리스트임
     except Exception as e:
         return JSONResponse(content={"error": f"데이터 파싱 중 오류 발생: {e}"}, status_code=500)
 
     level_counts = [0] * 31  # Lv.0 ~ Lv.30
+
     for item in stats:
         level = item.get("level")
-        count = item.get("count", 0)
+        solved = item.get("solved", 0)  # 🔥 여기를 count → solved로 바꿈
         if level is not None and 0 <= level <= 30:
-            level_counts[level] += count
+            level_counts[level] = solved  # += 말고 = 사용
 
     levels = [f"Lv.{i}" for i in range(31)]
     return JSONResponse(content={"levels": levels, "counts": level_counts})
