@@ -112,6 +112,18 @@ async def get_user_info(boj_username: str):
 
     return JSONResponse(content=result)
 
+def convert_tier_name(tier: int) -> str:
+    tiers = [
+        "Unrated",
+        "Bronze V", "Bronze IV", "Bronze III", "Bronze II", "Bronze I",
+        "Silver V", "Silver IV", "Silver III", "Silver II", "Silver I",
+        "Gold V", "Gold IV", "Gold III", "Gold II", "Gold I",
+        "Platinum V", "Platinum IV", "Platinum III", "Platinum II", "Platinum I",
+        "Diamond V", "Diamond IV", "Diamond III", "Diamond II", "Diamond I",
+        "Ruby V", "Ruby IV", "Ruby III", "Ruby II", "Ruby I",
+        "Master", "Grandmaster", "Challenger"
+    ]
+    return tiers[tier] if 0 <= tier < len(tiers) else "Unknown"
 
 # ✅ recommend 엔드포인트 중복 제거된 최종 코드
 @app.get("/recommend")
@@ -123,12 +135,13 @@ async def recommend_problem(boj_username: str):
             user_data = user_res.json()
 
         tier = user_data.get("tier", 1)
+        tier_name = convert_tier_name(tier)
 
         problem_url = f"https://solved.ac/api/v3/search/problem?query=tier:{tier}&sort=random"
         async with httpx.AsyncClient() as client:
             problem_res = await client.get(problem_url)
             problem_data = problem_res.json()
-
+    
         problem = problem_data["items"][0] if problem_data["items"] else None
         if problem is None:
             return JSONResponse({"error": "추천할 문제가 없습니다."}, status_code=404)
@@ -136,9 +149,10 @@ async def recommend_problem(boj_username: str):
         recommended_problem = {
             "problemId": problem["problemId"],
             "title": problem["titleKo"],
-            "tier": problem["level"]
+            "tier": problem["level"],
+            "tierName": tier_name 
         }
-
+        print(recommended_problem)
         return JSONResponse(recommended_problem)
 
     except Exception as e:
@@ -203,6 +217,7 @@ async def recommend_ai_problem(boj_username: str):
     
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+    
     
 #풀이분포보기
 @app.get("/distribution")
