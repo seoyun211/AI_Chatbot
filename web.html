@@ -132,29 +132,28 @@
       <button class="send-button" onclick="sendMessage()">전송</button>
     </div>
 
-    <!-- 데일리 목표 설정 모달 -->
-    <div id="goalModal" class="modal"
+    <!-- 데일리 목표 모달 -->
+    <div id="dailyGoalModal" class="modal"
       style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:1000;">
       <div
         style="background:white; padding:20px; max-width:400px; margin:100px auto; border-radius:12px; position:relative;">
-        <span onclick="closeGoalModal()"
+        <span onclick="closeDailyGoalModal()"
           style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:18px;">❌</span>
         <h3>🎯 데일리 목표 설정</h3>
 
-        <!-- 목표 문제 수 입력 필드 -->
         <label for="goalInput">목표 문제 수:</label>
-        <input type="number" id="goalInput" min="0" style="margin:8px 0; display:block; width:100%; padding:6px;">
+        <input type="number" id="goalInput" min="1" style="width: 80px; margin: 8px 0;"><br>
+        <button onclick="setDailyGoal()">목표 설정</button>
 
-        <button onclick="saveGoal()"
-          style="margin-top:10px; padding:8px 16px; background-color:#4CAF50; color:white; border:none; border-radius:6px;">저장</button>
-
-        <!-- 푼 문제 수와 진행률 표시 -->
-        <div style="margin-top: 20px;">
-          <p>현재 푼 문제 수: <span id="solved-count">0</span></p>
-          <p>진행률:</p>
-          <div style="background: #eee; border-radius: 10px; height: 20px; width: 100%;">
-            <div id="goal-progress-bar" style="height: 100%; background: #4caf50; width: 0%; border-radius: 10px;">
-            </div>
+        <div id="progress-area" style="margin-top: 20px; display: none;">
+          <p>현재 푼 문제 수: <span id="solvedCount">0</span> / <span id="goalCount">0</span></p>
+          <div style="background-color: #eee; border-radius: 6px; overflow: hidden; height: 20px;">
+            <div id="progressBar" style="height: 100%; width: 0%; background-color: #4CAF50;"></div>
+          </div>
+          <div style="margin-top: 10px;">
+            <button onclick="changeSolvedCount(1)">+1</button>
+            <button onclick="changeSolvedCount(-1)">-1</button>
+            <button onclick="resetGoal()">목표 초기화</button>
           </div>
         </div>
       </div>
@@ -298,19 +297,19 @@
         { label: '🤖 AI 문제 추천', message: 'AI문제 추천' },
         { label: '🎲 랜덤 문제 추천', message: '랜덤 문제 추천' },
         { label: '👑 랭킹 시뮬레이션', message: '랭킹 시뮬레이션' },
-        { label: '🎯 데일리 목표 설정', action: openGoalModal } // '목표 설정' 버튼
+        { label: '🎯 데일리 목표 설정', action: showDailyGoalModal }
       ];
 
       buttons.forEach(btn => {
         const button = document.createElement('button');
         button.textContent = btn.label;
-        button.className = 'chat-button';
+        button.className = 'chat-button';  // 버튼에 클래스 추가
 
-        // 버튼에 클릭 이벤트 추가
+        // 버튼 클릭 시 action 실행
         button.onclick = () => {
           if (btn.action) {
             // action이 있을 경우 해당 함수를 실행 (모달 열기 등)
-            btn.action();
+            btn.action();  // openGoalModal() 실행
           } else {
             // action이 없을 경우 원래대로 메시지 처리
             displayMessage(` ${btn.label}`, 'user-message');
@@ -324,6 +323,7 @@
 
       chatBox.appendChild(buttonContainer);
       chatBox.scrollTop = chatBox.scrollHeight;
+
     }
 
     // ✅ 버튼 클릭 시 자동 메시지 전송 
@@ -659,38 +659,86 @@
       draggingSettings = false;
     });
 
-    function toggleGoalPanel() {
-      const panel = document.getElementById("goal-panel");
-      panel.style.display = panel.style.display === "none" ? "block" : "none";
-    }
 
     function saveGoal() {
-      const input = document.getElementById("daily-goal").value;
-      dailyGoal = parseInt(input);
+      // 목표 수 가져오기
+      const goalInput = document.getElementById('goalInput');
+      let dailyGoal = parseInt(goalInput.value);
+
+      // 목표 수가 제대로 입력되었는지 확인
+      if (isNaN(dailyGoal) || dailyGoal <= 0) {
+        alert("목표 문제 수를 제대로 입력해주세요.");
+        return;
+      }
+
+      // 목표 수 저장되었습니다 메시지 표시
+      const goalSavedMessage = document.getElementById('goal-saved-message');
+      goalSavedMessage.style.display = 'block';  // 메시지 보이기
+
+      // 1초 후 메시지 숨기기
+      setTimeout(() => {
+        goalSavedMessage.style.display = 'none';
+      }, 1000);
+
+      // 진행률 업데이트 함수 호출 (여기서 진행률 바 업데이트)
+      updateProgressBar();
+
+      console.log("🎯 목표 설정 완료! 목표 수:", dailyGoal);
+    }
+
+    // +1, -1 버튼으로 푼 문제 수 조정
+    function adjustSolvedCount(amount) {
+      const current = parseInt(localStorage.getItem('solvedCount') || '0');
+      let updated = current + amount;
+      if (updated < 0) updated = 0;
+
+      localStorage.setItem('solvedCount', updated);
+      updateProgressBar();
+      document.getElementById('solvedCountDisplay').textContent = updated;
+
+
+      // 진행률 업데이트
       updateProgressBar();
     }
 
-    function updateSolvedCount(count) {
-      solvedToday = count;
-      document.getElementById("solved-count").innerText = solvedToday;
-      updateProgressBar();
+    function updateSolvedCount(newSolvedCount) {
+      solvedCount = newSolvedCount;
+      const goal = parseInt(localStorage.getItem('dailyGoal') || 0);
+      updateProgressBar(goal, solvedCount);
     }
 
-    function updateProgressBar() {
-      if (dailyGoal === 0) return;
-      const percent = Math.min((solvedToday / dailyGoal) * 100, 100);
-      document.getElementById("goal-progress-bar").style.width = percent + "%";
+    // 진행률 바 업데이트 함수
+    function updateProgressBar(goal, solved) {
+      const progressBar = document.getElementById('progress-bar');
+      const progressBarContainer = document.getElementById('progress-bar-container');
+
+      if (goal === 0) {
+        progressBar.style.width = '0%';
+      } else {
+        const percentage = (solved / goal) * 100;
+        progressBar.style.width = percentage + '%';
+      }
+
+      // 진행률 바를 화면에 표시
+      progressBarContainer.style.display = 'block';
     }
 
-    // 목표 설정 모달 열기
+    // 데일리 목표 설정 팝업 열기
     function openGoalModal() {
-      document.getElementById('goalModal').style.display = 'block';
+      const goalModal = document.getElementById('goalModal');
+      goalModal.style.display = 'block';  // 팝업 표시
+
+      // 푼 문제 수 표시 업데이트
+      const solved = localStorage.getItem('solvedCount') || '0';
+      document.getElementById('solvedCountDisplay').textContent = solved;
     }
 
-    // 목표 설정 모달 닫기
+    // 데일리 목표 설정 팝업 닫기
     function closeGoalModal() {
-      document.getElementById('goalModal').style.display = 'none';
+      const goalModal = document.getElementById('goalModal');
+      goalModal.style.display = 'none';  // 팝업 숨기기
     }
+
 
     // 등급업 전략 보여주기
     async function getRankUpTip() {
@@ -756,9 +804,104 @@
       }
     }
 
-    // 목표 설정 모달 열기
-    function openGoalModal() {
-      document.getElementById('goalModal').style.display = 'block';
+    // 목표 수정 함수
+    function editGoal() {
+      const newGoal = prompt("새로운 목표를 설정하세요:");
+      if (newGoal && !isNaN(newGoal) && newGoal > 0) {
+        localStorage.setItem('dailyGoal', newGoal);
+        alert(`목표가 ${newGoal}로 수정되었습니다.`);
+        updateProgressBar(newGoal, solvedCount);  // 수정된 목표로 진행률 바 갱신
+      } else {
+        alert("유효한 목표를 입력해주세요.");
+      }
+    }
+
+    // 목표 삭제 함수
+    function deleteGoal() {
+      localStorage.removeItem('dailyGoal');
+      alert("목표가 삭제되었습니다.");
+      updateProgressBar(0, 0);  // 목표 삭제 후 진행률 바 초기화
+      document.getElementById('goal-actions').style.display = 'none';
+    }
+
+    window.onload = function () {
+      const savedGoal = localStorage.getItem('dailyGoal');
+      if (savedGoal) {
+        const goal = parseInt(savedGoal);
+        updateProgressBar(goal, solvedCount);  // 저장된 목표로 진행률 바 업데이트
+        document.getElementById('goal-actions').style.display = 'block';  // 수정/삭제 버튼 보이기
+      }
+    };
+
+    // 목표 설정
+    function setDailyGoal() {
+      const goal = parseInt(document.getElementById('goalInput').value);
+      if (isNaN(goal) || goal <= 0) {
+        alert("유효한 목표 문제 수를 입력해주세요.");
+        return;
+      }
+
+      localStorage.setItem('dailyGoal', goal);
+      localStorage.setItem('solvedToday', 0); // 새 목표 설정 시 초기화
+      updateGoalUI();
+    }
+
+    // +1 / -1 버튼
+    function changeSolvedCount(delta) {
+      let current = parseInt(localStorage.getItem('solvedToday') || '0');
+      const goal = parseInt(localStorage.getItem('dailyGoal') || '0');
+      current = Math.max(0, current + delta); // 0 미만으로 안 내려가게
+      localStorage.setItem('solvedToday', current);
+      updateGoalUI();
+    }
+
+    // UI 업데이트
+    function updateGoalUI() {
+      const goal = parseInt(localStorage.getItem('dailyGoal') || '0');
+      const solved = parseInt(localStorage.getItem('solvedToday') || '0');
+
+      if (goal > 0) {
+        document.getElementById('progress-area').style.display = 'block';
+        document.getElementById('goalCount').textContent = goal;
+        document.getElementById('solvedCount').textContent = solved;
+
+        const progress = Math.min(100, Math.round((solved / goal) * 100));
+        const progressBar = document.getElementById('progressBar');
+        progressBar.style.width = progress + '%';
+
+        if (progress === 100) {
+          alert("🎉 목표를 달성했어요! 수고했어요!");
+        }
+      } else {
+        document.getElementById('progress-area').style.display = 'none';
+      }
+    }
+
+    // 목표 초기화
+    function resetGoal() {
+      localStorage.removeItem('dailyGoal');
+      localStorage.removeItem('solvedToday');
+      document.getElementById('goalInput').value = '';
+      updateGoalUI();
+    }
+
+    // 페이지 로드 시 자동 복원
+    window.addEventListener('DOMContentLoaded', () => {
+      updateGoalUI();
+    });
+
+    function showDailyGoalSection() {
+      const section = document.getElementById('daily-goal-section');
+      section.style.display = 'block';
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function showDailyGoalModal() {
+      document.getElementById('dailyGoalModal').style.display = 'block';
+    }
+
+    function closeDailyGoalModal() {
+      document.getElementById('dailyGoalModal').style.display = 'none';
     }
   </script>
 </body>
