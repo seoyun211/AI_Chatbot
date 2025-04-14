@@ -92,7 +92,6 @@
     <div class="sidebar" id="sidebar">
       <div class="menu-item" onclick="clearChat()">📄 새 채팅</div>
       <div class="menu-item" onclick="openSettings()">⚙ 설정</div>
-      <div class="menu-item" onclick="openGoalModal()">🎯 목표 설정</div>
     </div>
 
     <!-- 설정 페이지 -->
@@ -132,16 +131,24 @@
       <textarea class="input-box" id="input-box" placeholder="메시지를 입력하세요." rows="3"></textarea>
       <button class="send-button" onclick="sendMessage()">전송</button>
     </div>
-    <!-- 목표 설정 팝업 모달 -->
-    <div id="goal-modal" class="modal">
-      <div class="modal-content">
-        <span class="close" onclick="closeGoalModal()">&times;</span>
-        <h3>🎯 오늘의 목표 설정</h3>
-        <label>오늘 목표 문제 수:
-          <input type="number" id="daily-goal" placeholder="예: 5" />
-        </label>
-        <button onclick="saveGoal()">저장</button>
 
+    <!-- 데일리 목표 설정 모달 -->
+    <div id="goalModal" class="modal"
+      style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:1000;">
+      <div
+        style="background:white; padding:20px; max-width:400px; margin:100px auto; border-radius:12px; position:relative;">
+        <span onclick="closeGoalModal()"
+          style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:18px;">❌</span>
+        <h3>🎯 데일리 목표 설정</h3>
+
+        <!-- 목표 문제 수 입력 필드 -->
+        <label for="goalInput">목표 문제 수:</label>
+        <input type="number" id="goalInput" min="0" style="margin:8px 0; display:block; width:100%; padding:6px;">
+
+        <button onclick="saveGoal()"
+          style="margin-top:10px; padding:8px 16px; background-color:#4CAF50; color:white; border:none; border-radius:6px;">저장</button>
+
+        <!-- 푼 문제 수와 진행률 표시 -->
         <div style="margin-top: 20px;">
           <p>현재 푼 문제 수: <span id="solved-count">0</span></p>
           <p>진행률:</p>
@@ -291,16 +298,27 @@
         { label: '🤖 AI 문제 추천', message: 'AI문제 추천' },
         { label: '🎲 랜덤 문제 추천', message: '랜덤 문제 추천' },
         { label: '👑 랭킹 시뮬레이션', message: '랭킹 시뮬레이션' },
+        { label: '🎯 데일리 목표 설정', action: openGoalModal } // '목표 설정' 버튼
       ];
 
       buttons.forEach(btn => {
         const button = document.createElement('button');
         button.textContent = btn.label;
         button.className = 'chat-button';
+
+        // 버튼에 클릭 이벤트 추가
         button.onclick = () => {
-          displayMessage(` ${btn.label}`, 'user-message');
-          sendAutoMessage(btn.message);
+          if (btn.action) {
+            // action이 있을 경우 해당 함수를 실행 (모달 열기 등)
+            btn.action();
+          } else {
+            // action이 없을 경우 원래대로 메시지 처리
+            displayMessage(` ${btn.label}`, 'user-message');
+            sendAutoMessage(btn.message);
+          }
         };
+
+        // 버튼을 버튼 컨테이너에 추가
         buttonContainer.appendChild(button);
       });
 
@@ -314,12 +332,12 @@
       inputBox.value = message;
 
       if (message === "내 백준 정보 보기") {
-      const username = localStorage.getItem('bojUsername');
-      if (username) {
-        fetchUserInfo(username);
-      } else {
-        displayMessage("⚠ 사용자 정보를 찾을 수 없습니다.", 'bot-message');
-        } 
+        const username = localStorage.getItem('bojUsername');
+        if (username) {
+          fetchUserInfo(username);
+        } else {
+          displayMessage("⚠ 사용자 정보를 찾을 수 없습니다.", 'bot-message');
+        }
       } else if (message === "AI문제 추천") {
         recommendProblem();  // 랜덤 문제 추천 시 recommendProblem 호출
       } else if (message === "풀이 분포 보기") {
@@ -331,9 +349,9 @@
       } else if (message === "등급 별 공부법") {
         getRankUpTip();
       } else {
-      sendMessage(true);
+        sendMessage(true);
       }
-      
+
     }
 
     function closeStylePopup() {
@@ -361,7 +379,7 @@
           ];
           const userTierName = tierMap[data.tier] || "Unknown";
 
-        const cardHTML = `
+          const cardHTML = `
           <div class="boj-card">
             <div class="boj-card-header">👤 ${username}님의 백준 정보</div>
             <div class="boj-info-grid">
@@ -374,19 +392,19 @@
             </div>
           </div>
         `;
-      displayMessage(cardHTML, 'bot-message');  // HTML 출력 함수
+          displayMessage(cardHTML, 'bot-message');  // HTML 출력 함수
+        }
+      } catch (e) {
+        displayMessage("⚠ 사용자 정보를 불러오는 데 실패했습니다.", 'bot-message');
+      }
     }
-  } catch (e) {
-    displayMessage("⚠ 사용자 정보를 불러오는 데 실패했습니다.", 'bot-message');
-  }
-}
-// 랜덤문제추천
-async function recommendProblem() {
-  const bojUsername = localStorage.getItem('bojUsername');
-  if (!bojUsername) {
-    displayMessage("⚠ 사용자 정보가 없습니다.", 'bot-message');
-    return;
-  }
+    // 랜덤문제추천
+    async function recommendProblem() {
+      const bojUsername = localStorage.getItem('bojUsername');
+      if (!bojUsername) {
+        displayMessage("⚠ 사용자 정보가 없습니다.", 'bot-message');
+        return;
+      }
 
   try {
     // const res = await fetch(`http://127.0.0.1:8000/recommend?boj_username=${bojUsername}`);
@@ -394,13 +412,14 @@ async function recommendProblem() {
 
     const data = await res.json();
 
-    if (data.error) {
-      displayMessage(data.error, 'bot-message');
-    } else {
-      const problemLink = `https://www.acmicpc.net/problem/${data.problemId}`;
-      const tierImageUrl = `https://static.solved.ac/tier_small/${data.tier}.svg`;
 
-      const cardHtml = `
+        if (data.error) {
+          displayMessage(data.error, 'bot-message');
+        } else {
+          const problemLink = `https://www.acmicpc.net/problem/${data.problemId}`;
+          const tierImageUrl = `https://static.solved.ac/tier_small/${data.tier}.svg`;
+
+          const cardHtml = `
         <div style="
           display: flex;
           justify-content: space-between;
@@ -437,172 +456,172 @@ async function recommendProblem() {
         </div>
       `;
 
-      const chatBox = document.getElementById("chat-box");
-      const div = document.createElement("div");
-      div.className = "message bot-message";
-      div.innerHTML = cardHtml;
-      chatBox.appendChild(div);
-      chatBox.scrollTop = chatBox.scrollHeight;
+          const chatBox = document.getElementById("chat-box");
+          const div = document.createElement("div");
+          div.className = "message bot-message";
+          div.innerHTML = cardHtml;
+          chatBox.appendChild(div);
+          chatBox.scrollTop = chatBox.scrollHeight;
+        }
+      } catch (error) {
+        displayMessage("⚠ 추천 문제를 가져오는 중 오류가 발생했습니다.", 'bot-message');
+      }
     }
-  } catch (error) {
-    displayMessage("⚠ 추천 문제를 가져오는 중 오류가 발생했습니다.", 'bot-message');
-  }
-}
-let chartInstance = null;  // 전역으로 Chart 인스턴스를 저장
+    let chartInstance = null;  // 전역으로 Chart 인스턴스를 저장
 
-async function showDistribution() {
-  const bojUsername = localStorage.getItem('bojUsername');
-  if (!bojUsername) {
-    displayMessage("⚠ 사용자 정보가 없습니다.", 'bot-message');
-    return;
-  }
+    async function showDistribution() {
+      const bojUsername = localStorage.getItem('bojUsername');
+      if (!bojUsername) {
+        displayMessage("⚠ 사용자 정보가 없습니다.", 'bot-message');
+        return;
+      }
 
-  try {
-    const res = await fetch(`http://127.0.0.1:8000/distribution?boj_username=${bojUsername}`);
-    const data = await res.json();
+      try {
+        const res = await fetch(`http://127.0.0.1:8000/distribution?boj_username=${bojUsername}`);
+        const data = await res.json();
 
-    if (data.error) {
-      displayMessage(data.error, 'bot-message');
-      return;
-    }
+        if (data.error) {
+          displayMessage(data.error, 'bot-message');
+          return;
+        }
 
-    // ✅ 수정된 부분: 백엔드 응답 데이터 필드 정확히 맞춤
-    const levels = data.levels;
-    const counts = data.counts;
+        // ✅ 수정된 부분: 백엔드 응답 데이터 필드 정확히 맞춤
+        const levels = data.levels;
+        const counts = data.counts;
 
-    console.log("📊 levels", levels);
-    console.log("📊 counts", counts);
+        console.log("📊 levels", levels);
+        console.log("📊 counts", counts);
 
-    const canvasId = 'difficulty-chart';
-    const chartHtml = `
+        const canvasId = 'difficulty-chart';
+        const chartHtml = `
       <div style="max-width: 500px; margin-top: 16px;">
         <h4>📊 난이도 별 풀이 분포</h4>
         <canvas id="${canvasId}" width="400" height="300"></canvas>
       </div>
     `;
-    displayMessage(chartHtml, 'bot-message');
+        displayMessage(chartHtml, 'bot-message');
 
-    // DOM 그려진 다음 안전하게 실행
-    setTimeout(() => {
-      const ctx = document.getElementById(canvasId)?.getContext('2d');
-      if (!ctx) {
-        console.error("🎯 canvas를 찾을 수 없습니다.");
+        // DOM 그려진 다음 안전하게 실행
+        setTimeout(() => {
+          const ctx = document.getElementById(canvasId)?.getContext('2d');
+          if (!ctx) {
+            console.error("🎯 canvas를 찾을 수 없습니다.");
+            return;
+          }
+
+          // 이전 차트 인스턴스 제거
+          if (chartInstance !== null) {
+            chartInstance.destroy();
+          }
+
+          chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: levels,
+              datasets: [{
+                label: '풀이한 문제 수',
+                data: counts,
+                backgroundColor: '#4CAF50',
+                borderRadius: 8,
+              }]
+            },
+            options: {
+              responsive: true,
+              plugins: { legend: { display: false } },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  // ✅ 여기 추가: 최대값 설정 (자동 최대값이 너무 작을 때 대비)
+                  suggestedMax: Math.max(...counts) + 10,  // 최댓값 + 여유
+                  ticks: {
+                    stepSize: 1
+                  }
+                }
+              }
+            }
+          });
+
+
+        }, 150);  // DOM 생성 대기 시간
+
+      } catch (err) {
+        displayMessage("⚠ 분포 데이터를 불러오는 데 실패했습니다.", 'bot-message');
+      }
+    }
+
+    // 도전 과제 생성
+    async function generateChallenge() {
+      const bojUsername = localStorage.getItem('bojUsername');
+      if (!bojUsername) {
+        displayMessage("⚠ 사용자 정보가 없습니다.", 'bot-message');
         return;
       }
 
-      // 이전 차트 인스턴스 제거
-      if (chartInstance !== null) {
-        chartInstance.destroy();
-      }
+      const res = await fetch(`http://127.0.0.1:8000/challenge?boj_username=${bojUsername}`);
+      const data = await res.json();
 
-      chartInstance = new Chart(ctx, {
-  type: 'bar',
-  data: {
-    labels: levels,
-    datasets: [{
-      label: '풀이한 문제 수',
-      data: counts,
-      backgroundColor: '#4CAF50',
-      borderRadius: 8,
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: { legend: { display: false } },
-    scales: {
-      y: {
-        beginAtZero: true,
-        // ✅ 여기 추가: 최대값 설정 (자동 최대값이 너무 작을 때 대비)
-        suggestedMax: Math.max(...counts) + 10,  // 최댓값 + 여유
-        ticks: {
-          stepSize: 1
-        }
+      if (data.error) {
+        displayMessage(data.error, 'bot-message');
+      } else {
+        displayMessage(`🏆 도전 과제: ${data.challenge}`, 'bot-message');
       }
     }
-  }
-});
 
 
-    }, 150);  // DOM 생성 대기 시간
+    // 한주기록 시각화
+    async function showWeeklyChart() {
+      const bojUsername = localStorage.getItem('bojUsername');
+      if (!bojUsername) {
+        displayMessage("⚠ 사용자 정보가 없습니다.", 'bot-message');
+        return;
+      }
 
-  } catch (err) {
-    displayMessage("⚠ 분포 데이터를 불러오는 데 실패했습니다.", 'bot-message');
-  }
-}
+      const res = await fetch(`http://127.0.0.1:8000/weekly_activity?boj_username=${bojUsername}`);
+      const data = await res.json();
 
-// 도전 과제 생성
-async function generateChallenge() {
-  const bojUsername = localStorage.getItem('bojUsername');
-  if (!bojUsername) {
-    displayMessage("⚠ 사용자 정보가 없습니다.", 'bot-message');
-    return;
-  }
+      if (data.error) {
+        displayMessage(data.error, 'bot-message');
+        return;
+      }
 
-  const res = await fetch(`http://127.0.0.1:8000/challenge?boj_username=${bojUsername}`);
-  const data = await res.json();
-
-  if (data.error) {
-    displayMessage(data.error, 'bot-message');
-  } else {
-    displayMessage(`🏆 도전 과제: ${data.challenge}`, 'bot-message');
-  }
-}
-
-
-// 한주기록 시각화
-async function showWeeklyChart() {
-  const bojUsername = localStorage.getItem('bojUsername');
-  if (!bojUsername) {
-    displayMessage("⚠ 사용자 정보가 없습니다.", 'bot-message');
-    return;
-  }
-
-  const res = await fetch(`http://127.0.0.1:8000/weekly_activity?boj_username=${bojUsername}`);
-  const data = await res.json();
-
-  if (data.error) {
-    displayMessage(data.error, 'bot-message');
-    return;
-  }
-
-  const canvasId = 'weekly-chart';
-  const chartHtml = `
+      const canvasId = 'weekly-chart';
+      const chartHtml = `
     <div style="max-width: 500px; margin-top: 16px;">
       <h4>📆 이번 주 풀이 현황</h4>
       <canvas id="${canvasId}" width="400" height="300"></canvas>
     </div>
   `;
-  displayMessage(chartHtml, 'bot-message');
+      displayMessage(chartHtml, 'bot-message');
 
-  setTimeout(() => {
-    const ctx = document.getElementById(canvasId).getContext('2d');
-    if (chartInstance !== null) chartInstance.destroy();
+      setTimeout(() => {
+        const ctx = document.getElementById(canvasId).getContext('2d');
+        if (chartInstance !== null) chartInstance.destroy();
 
-    chartInstance = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: data.days,
-        datasets: [{
-          label: '푼 문제 수',
-          data: data.counts,
-          backgroundColor: '#337ab7',
-          borderRadius: 8
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: {
-            beginAtZero: true,
-            suggestedMax: Math.max(...data.counts) + 3,
-            ticks: { stepSize: 1 }
+        chartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: data.days,
+            datasets: [{
+              label: '푼 문제 수',
+              data: data.counts,
+              backgroundColor: '#337ab7',
+              borderRadius: 8
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: {
+                beginAtZero: true,
+                suggestedMax: Math.max(...data.counts) + 3,
+                ticks: { stepSize: 1 }
+              }
+            }
           }
-        }
-      }
-    });
-  }, 150);
-}
+        });
+      }, 150);
+    }
 
 
     const settingsPage = document.getElementById("settings-page");
@@ -640,9 +659,6 @@ async function showWeeklyChart() {
       draggingSettings = false;
     });
 
-    let solvedToday = 0;
-    let dailyGoal = 0;
-
     function toggleGoalPanel() {
       const panel = document.getElementById("goal-panel");
       panel.style.display = panel.style.display === "none" ? "block" : "none";
@@ -666,33 +682,84 @@ async function showWeeklyChart() {
       document.getElementById("goal-progress-bar").style.width = percent + "%";
     }
 
+    // 목표 설정 모달 열기
     function openGoalModal() {
-      document.getElementById("goal-modal").style.display = "block";
+      document.getElementById('goalModal').style.display = 'block';
     }
 
+    // 목표 설정 모달 닫기
     function closeGoalModal() {
-      document.getElementById("goal-modal").style.display = "none";
+      document.getElementById('goalModal').style.display = 'none';
     }
 
-// 등급업 전략 보여주기
-async function getRankUpTip() {
-  const bojUsername = localStorage.getItem('bojUsername');
-  if (!bojUsername) {
-    displayMessage("⚠ 사용자 정보가 없습니다.", 'bot-message');
-    return;
-  }
+    // 등급업 전략 보여주기
+    async function getRankUpTip() {
+      const bojUsername = localStorage.getItem('bojUsername');
+      if (!bojUsername) {
+        displayMessage("⚠ 사용자 정보가 없습니다.", 'bot-message');
+        return;
+      }
 
-  const res = await fetch(`http://127.0.0.1:8000/rankup_tip?boj_username=${bojUsername}`);
-  const data = await res.json();
+      const res = await fetch(`http://127.0.0.1:8000/rankup_tip?boj_username=${bojUsername}`);
+      const data = await res.json();
 
-  if (data.error) {
-    displayMessage(data.error, 'bot-message');
-  } else {
-    displayMessage(`📈 등급 업 팁: ${data.tip}`, 'bot-message');
-  }
-}
+      if (data.error) {
+        displayMessage(data.error, 'bot-message');
+      } else {
+        displayMessage(`📈 등급 업 팁: ${data.tip}`, 'bot-message');
+      }
+    }
 
+    let dailyGoal = 0; // 목표 문제 수
+    let solvedCount = 0; // 푼 문제 수
 
+    // 목표 설정 저장 함수
+    function saveGoal() {
+      const goalInput = document.getElementById('goalInput').value;
+
+      // 목표 문제 수 설정
+      dailyGoal = parseInt(goalInput);
+
+      if (isNaN(dailyGoal) || dailyGoal <= 0) {
+        alert("목표 문제 수를 올바르게 입력해주세요.");
+        return;
+      }
+
+      // 진행률 업데이트
+      updateProgress();
+
+      // 모달 닫기
+      closeGoalModal();
+    }
+
+    // 진행률 업데이트 함수
+    function updateProgress() {
+      // 푼 문제 수와 목표 문제 수에 따라 진행률 계산
+      const progress = (solvedCount / dailyGoal) * 100;
+
+      // 진행률 바와 현재 푼 문제 수 업데이트
+      document.getElementById('goal-progress-bar').style.width = `${progress}%`;
+      document.getElementById('solved-count').textContent = solvedCount;
+    }
+
+    // 푼 문제 수 +1 버튼 함수
+    function incrementSolvedCount() {
+      solvedCount++;
+      updateProgress();
+    }
+
+    // 푼 문제 수 -1 버튼 함수
+    function decrementSolvedCount() {
+      if (solvedCount > 0) {
+        solvedCount--;
+        updateProgress();
+      }
+    }
+
+    // 목표 설정 모달 열기
+    function openGoalModal() {
+      document.getElementById('goalModal').style.display = 'block';
+    }
   </script>
 </body>
 
