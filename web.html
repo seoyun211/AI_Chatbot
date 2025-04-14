@@ -389,7 +389,9 @@ async function recommendProblem() {
   }
 
   try {
+    // const res = await fetch(`http://127.0.0.1:8000/recommend?boj_username=${bojUsername}`);
     const res = await fetch(`http://127.0.0.1:8000/recommend?boj_username=${bojUsername}`);
+
     const data = await res.json();
 
     if (data.error) {

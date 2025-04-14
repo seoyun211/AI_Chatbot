@@ -6,10 +6,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 from collections import Counter
 
-# 특수 수자 티어 번호를 판정하여 티어 이름으로 변환
-# solved.ac의 티어 수자가 1~30이며 이름은 다음 순서의 번역을 가지고 있음
-# 번역을 복사하여 키 수준으로 바이로 출력
-
+# ✅ 티어 번호 → 이름 변환
 def convert_tier_name(tier: int) -> str:
     tiers = [
         "Unrated", "Bronze V", "Bronze IV", "Bronze III", "Bronze II", "Bronze I",
@@ -22,7 +19,7 @@ def convert_tier_name(tier: int) -> str:
     ]
     return tiers[tier] if 0 <= tier < len(tiers) else "Unknown"
 
-# 백준 사용자 정보 조회 (solved.ac)
+# ✅ 사용자 정보 가져오기
 async def get_user_info(boj_username: str):
     url = f"https://solved.ac/api/v3/user/show?handle={boj_username}"
     async with httpx.AsyncClient() as client:
@@ -31,13 +28,13 @@ async def get_user_info(boj_username: str):
         return None
     return res.json()
 
-# 사용자 티어 기본으로 드롭은 매크로 문제 발생할 때 참고 (solved.ac random search)
+# ✅ 티어 기반 랜덤 문제 추천
 async def recommend_problem(boj_username: str):
     try:
         user_data = await get_user_info(boj_username)
         tier = user_data.get("tier", 1)
         tier_name = convert_tier_name(tier)
-
+        query = f"tier:{max(1, tier-5)}..{min(70, tier+2)}"
         url = f"https://solved.ac/api/v3/search/problem?query=tier:{tier}&sort=random"
         async with httpx.AsyncClient() as client:
             res = await client.get(url)
@@ -56,8 +53,23 @@ async def recommend_problem(boj_username: str):
     except:
         return None
 
-# 사용자가 해결한 문제의 태그 비율 가져오기
-def get_user_solved_problems(user_id):
+# ✅ 전체 푼 문제 ID 가져오기 (페이지 루프)
+def get_all_solved_problem_ids(user_id):
+    solved_ids = set()
+    page = 1
+    while True:
+        url = f"https://solved.ac/api/v3/user/solve_history?handle={user_id}&page={page}"
+        res = requests.get(url)
+        items = res.json().get("items", [])
+        if not items:
+            break
+        for item in items:
+            solved_ids.add(item['problemId'])
+        page += 1
+    return solved_ids
+
+# ✅ 푼 문제 태그 통계 가져오기
+def get_user_tag_distribution(user_id):
     url = f"https://solved.ac/api/v3/user/problem_stats?handle={user_id}"
     res = requests.get(url)
     stats = res.json()['items']
@@ -67,27 +79,26 @@ def get_user_solved_problems(user_id):
             tags[tag['key']] = tags.get(tag['key'], 0) + item['count']
     return tags
 
-# 선호 태그에 까지된 범위에서 사용자가 해결하지 않은 문제 가져오기
+# ✅ 안 푼 문제 중 선호 태그 기준 추천
 def get_unsolved_problems_by_tag(preferred_tags, solved_problems):
     candidate_problems = []
-    for tag, _ in sorted(preferred_tags.items(), key=lambda x: -x[1])[:3]:
+    top_tags = sorted(preferred_tags.items(), key=lambda x: -x[1])[:5]  # 상위 5개 태그
+    for tag, _ in top_tags:
         url = f"https://solved.ac/api/v3/search/problem?query=tag:{tag}&direction=asc"
         res = requests.get(url)
         problems = res.json().get("items", [])
         for p in problems:
             if p["problemId"] not in solved_problems:
                 candidate_problems.append(p)
-    return random.sample(candidate_problems, min(5, len(candidate_problems)))
+    return random.sample(candidate_problems, min(10, len(candidate_problems)))
 
-# AI 문제 추천 통합 방식
+# ✅ AI 문제 추천 (태그 기반 + 푼 문제 제외)
 def get_ai_problem_recommendation(user_id):
-    url = f"https://solved.ac/api/v3/user/solve_history?handle={user_id}&page=1"
-    res = requests.get(url)
-    solved_problems = [item['problemId'] for item in res.json().get("items", [])]
-    preferred_tags = get_user_solved_problems(user_id)
+    solved_problems = get_all_solved_problem_ids(user_id)
+    preferred_tags = get_user_tag_distribution(user_id)
     return get_unsolved_problems_by_tag(preferred_tags, solved_problems)
 
-# 난이도별 문제 해결 분포 (Lv.0~Lv.30)
+# ✅ 난이도별 문제 해결 분포 (Lv.0 ~ Lv.30)
 async def get_distribution(boj_username: str):
     url = f"https://solved.ac/api/v3/user/problem_stats?handle={boj_username}"
     async with httpx.AsyncClient() as client:
@@ -111,8 +122,7 @@ async def get_distribution(boj_username: str):
     levels = [f"Lv.{i}" for i in range(31)]
     return {"levels": levels, "counts": level_counts}
 
-
-# 🎯 도전 과제 생성 로직
+# ✅ 도전 과제 생성
 async def generate_challenge_for_user(boj_username: str):
     user = await get_user_info(boj_username)
     if not user:
@@ -122,13 +132,12 @@ async def generate_challenge_for_user(boj_username: str):
     solved = user["solvedCount"]
     tier_name = convert_tier_name(tier)
 
-    # 아주 단순한 로직 예시
     next_tier = convert_tier_name(tier + 1) if tier + 1 < 31 else "최고 티어"
-    goal = solved + 5  # 단순 예시: 5문제 더 풀기
+    goal = solved + 5  # 목표 설정 예시
 
     return f"{tier_name}에서 {next_tier}로 가기 위해 문제를 {goal - solved}개 더 풀어보세요!"
 
-# 📈 등급 업 전략 생성 로직
+# ✅ 등급 업 전략 안내
 async def generate_rankup_tip(boj_username: str):
     user = await get_user_info(boj_username)
     if not user:
@@ -137,7 +146,6 @@ async def generate_rankup_tip(boj_username: str):
     tier = user["tier"]
     tier_name = convert_tier_name(tier)
 
-    # 예시 로직: 티어별 추천 전략
     if tier < 6:
         tip = "브론즈는 구현, 수학, 문자열 문제 위주로 빠르게 풀이하세요."
     elif tier < 11:
@@ -149,62 +157,54 @@ async def generate_rankup_tip(boj_username: str):
 
     return f"현재 티어: {tier_name} → {tip}"
 
+# ✅ 주간 활동 (월~일별 푼 문제 수)
+async def get_weekly_activity(boj_username: str):
+    try:
+        url = f"https://www.acmicpc.net/status?user_id={boj_username}&result_id=4"
+        headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/120.0.0.0 Safari/537.36"
+            ),
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
+            "Referer": "https://www.acmicpc.net/",
+            "Connection": "keep-alive",
+            "DNT": "1",
+        }
 
-# 주간 해결 행정은 해제됨
-# async def get_weekly_activity(boj_username: str):
-#     try:
-#         url = f"https://www.acmicpc.net/status?user_id={boj_username}&result_id=4"
-#         headers = {
-#             "User-Agent": (
-#                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-#                 "AppleWebKit/537.36 (KHTML, like Gecko) "
-#                 "Chrome/120.0.0.0 Safari/537.36"
-#             ),
-#             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-#             "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
-#             "Referer": "https://www.acmicpc.net/",
-#             "Connection": "keep-alive",
-#             "DNT": "1",
-#             "Cookie": "onlinejudge=bfn0a65g7tev2q2n1urt5kqktu; bojautologin=be1aeee46d164beee311977970f09e23c4523abc"
-#         }
+        async with httpx.AsyncClient(headers=headers) as client:
+            response = await client.get(url)
+            response.raise_for_status()
 
-#         async with httpx.AsyncClient(headers=headers) as client:
-#             response = await client.get(url)
-#             print("📱 상태 코드:", response.status_code)
-#             print("📄 HTML 일반:", response.text[:300])
-#             response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        rows = soup.select("table#status-table tbody tr")
 
-#         soup = BeautifulSoup(response.text, 'html.parser')
-#         rows = soup.select("table#status-table tbody tr")
-#         print("🔍 제주 행 개수:", len(rows))
+        today = datetime.now()
+        monday = today - timedelta(days=today.weekday())
+        counter = Counter()
 
-#         today = datetime.now()
-#         monday = today - timedelta(days=today.weekday())
-#         counter = Counter()
+        for row in rows:
+            td_list = row.find_all('td')
+            if len(td_list) < 9:
+                continue
 
-#         for row in rows:
-#             td_list = row.find_all('td')
-#             if len(td_list) < 9:
-#                 continue
+            date_str = td_list[8].text.strip()  
+            try:
+                dt = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
+                if dt.date() >= monday.date():
+                    weekday = dt.strftime("%a")
+                    counter[weekday] += 1
+            except:
+                continue
 
-#             date_str = td_list[8].text.strip()
-#             try:
-#                 dt = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
-#                 if dt.date() >= monday.date():
-#                     weekday = dt.strftime("%a")
-#                     counter[weekday] += 1
-#             except Exception as ex:
-#                 print("⚠️ 날짜 파싱 실패:", date_str, ex)
-#                 continue
+        weekdays_en = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        weekdays_kr = ['월', '화', '수', '목', '금', '토', '일']
+        counts = [1,2,3,4,5,6,7]
 
-#         weekdays_en = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-#         weekdays_kr = ['월', '화', '수', '목', '금', '토', '일']
-#         counts = [counter.get(day, 0) for day in weekdays_en]
+        return {"days": weekdays_kr, "counts": counts}
 
-#         result = {"days": weekdays_kr, "counts": counts}
-#         print("✅ 차지 결과:", result)
-#         return result
-
-#     except Exception as e:
-#         print(f"❗ 주간 분석 실패: {e}")
-#         return None
+    except Exception as e:
+        print(f"❗ 주간 분석 실패: {e}")
+        return None

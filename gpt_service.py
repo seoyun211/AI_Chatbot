@@ -31,11 +31,11 @@ def analyze_file(file, question: str):
             model=model,
             messages=[
                 {"role": "system", "content": "다음 지침을 무조건 따라야 합니다:"},
-                {"role": "system", "content": "1. 오직 pandas로 작성된 Python 코드만 반환하세요."},
-                {"role": "system", "content": "2. 절대 자연어 메시지, 설명, 요청, 거절 메시지를 포함하지 마세요."},
-                {"role": "system", "content": "3. 파일을 직접 읽거나 쓰는 코드도 금지입니다. 데이터는 반드시 제공된 'df' DataFrame만 사용합니다."},
-                {"role": "system", "content": "4. 최종 분석 결과는 반드시 'result'라는 변수에 저장합니다."},
-                {"role": "system", "content": "5. 분석 요청이 불명확하면 무조건 'result = df.head()' 코드를 반환하세요."},
+                {"role": "system", "content": "1. 한국어로 말해줘"},
+                {"role": "system", "content": "2. 프로그래밍을 하는 사람들이 너에게 질문 할거야야"},
+                {"role": "system", "content": "3. 그들이 알려달라는것을 친절히 알려줘줘"},
+                {"role": "system", "content": "4. "},
+                {"role": "system", "content": "5. "},
                 {"role": "user", "content": question}
             ],
             timeout=20
