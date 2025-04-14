@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from datetime import datetime
 from gpt_service import analyze_file, ask_chatbot, analyze_boj_info
 from backjoon import get_user_info, recommend_problem, get_ai_problem_recommendation, get_distribution
 
@@ -37,14 +38,16 @@ async def analyze(file: UploadFile, question: str = Form(...)):
         return JSONResponse(content={"summary": result["error"]}, status_code=500)
     return JSONResponse(content=result)
 
-# 💬 일반 챗봇 질문 응답
-@app.post("/chat")
-async def chat(question: str = Form(...)):
+@app.get("/daily_tip")
+async def daily_tip():
+    from gpt_service import get_daily_goal_tip
+    today = datetime.now().strftime('%A')  # 예: Tuesday
     try:
-        answer = ask_chatbot(question)
-        return JSONResponse(content={"answer": answer})
+        tip = get_daily_goal_tip(today, yesterday_count=3)  # 어제 카운트는 예시로 3
+        return JSONResponse(content={"tip": tip})
     except Exception as e:
-        return JSONResponse(content={"answer": f"⚠ 오류 발생: {e}"}, status_code=500)
+        return JSONResponse(content={"error": f"GPT 오류: {e}"}, status_code=500)
+
 
 # 👤 사용자 정보 조회 API
 @app.get("/userinfo")

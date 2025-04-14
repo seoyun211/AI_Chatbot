@@ -18,6 +18,23 @@ def ask_chatbot(question: str, custom_prompt: str = None) -> str:
     )
     return gpt_response.choices[0].message.content
 
+# 🎯 데일리 동기부여 멘트 생성
+def get_daily_goal_tip(today: str, yesterday_count: int = 0) -> str:
+    prompt = (
+        f"오늘은 {today}입니다. "
+        f"어제는 {yesterday_count}문제를 풀었어요. "
+        "사용자가 오늘 도전할 수 있는 적절한 문제 수를 추천하고, "
+        "동기부여되는 말도 한 줄 덧붙여줘. 너무 딱딱하지 않게 말해줘!"
+    )
+    model = "gpt-3.5-turbo"
+    gpt_response = client.chat.completions.create(
+        model=model,
+        messages=[{"role": "user", "content": prompt}],
+        timeout=10
+    )
+    return gpt_response.choices[0].message.content
+
+
 # 📊 업로드된 파일을 기반으로 GPT 분석 수행
 def analyze_file(file, question: str):
     import shutil

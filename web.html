@@ -248,33 +248,37 @@
     }
 
     async function sendMessage(skipUserMessage = false) {
-      const inputBox = document.getElementById('input-box');
-      const fileInput = document.getElementById('file-input');
-      const message = inputBox.value.trim();
-      const bojUsername = localStorage.getItem('bojUsername') || "";
+  const inputBox = document.getElementById('input-box');
+  const fileInput = document.getElementById('file-input');
+  const message = inputBox.value.trim();
+  const bojUsername = localStorage.getItem('bojUsername') || "";
 
-      if (!message) return;
+  if (!message) return;
 
-      if (!skipUserMessage) {
-        displayMessage(message, 'user-message');
-      }
+  if (!skipUserMessage) {
+    displayMessage(message, 'user-message');
+  }
 
-      inputBox.value = '';
+  inputBox.value = '';
 
-      const formData = new FormData();
-      formData.append('question', message);
-      formData.append('boj_username', bojUsername);
+  const formData = new FormData();
+  formData.append('question', message);
+  formData.append('boj_username', bojUsername);
+  formData.append('prompt', localStorage.getItem("customPrompt") || "");  // ✅ 프롬프트 포함
 
-      const url = fileInput && fileInput.files && fileInput.files.length > 0 ? 'http://127.0.0.1:8000/analyze' : 'http://127.0.0.1:8000/chat';
+  const url = fileInput && fileInput.files && fileInput.files.length > 0
+    ? 'http://127.0.0.1:8000/analyze'
+    : 'http://127.0.0.1:8000/chat';
 
-      try {
-        const response = await fetch(url, { method: 'POST', body: formData });
-        const data = await response.json();
-        displayMessage(data.summary || data.answer || "오류 발생", 'bot-message');
-      } catch (error) {
-        displayMessage("⚠ 서버와 통신 중 오류 발생", 'bot-message');
-      }
-    }
+  try {
+    const response = await fetch(url, { method: 'POST', body: formData });
+    const data = await response.json();
+    displayMessage(data.summary || data.answer || "오류 발생", 'bot-message');
+  } catch (error) {
+    displayMessage("⚠ 서버와 통신 중 오류 발생", 'bot-message');
+  }
+}
+
 
     function displayMessage(msg, className) {
       const chatBox = document.getElementById('chat-box');
@@ -941,9 +945,9 @@
         const progressBar = document.getElementById('progressBar');
         progressBar.style.width = progress + '%';
 
-        if (progress === 100) {
-          alert("🎉 목표를 달성했어요! 수고했어요!");
-        }
+        // if (progress === 100) {
+        //   alert("🎉 목표를 달성했어요! 수고했어요!");
+        // }
       } else {
         document.getElementById('progress-area').style.display = 'none';
       }
@@ -968,9 +972,20 @@
       section.scrollIntoView({ behavior: 'smooth' });
     }
 
-    function showDailyGoalModal() {
-      document.getElementById('dailyGoalModal').style.display = 'block';
-    }
+  async function showDailyGoalModal() {
+    document.getElementById('dailyGoalModal').style.display = 'block';
+
+    //   try {
+    //   const res = await fetch('http://127.0.0.1:8000/daily_tip');  // ✅ 정상 작동
+    //   const data = await res.json();
+    //   if (data.tip) {
+    //     displayMessage(`💡 ${data.tip}`, 'bot-message');
+    //   }
+    // } catch (e) {
+    //   console.log("GPT 동기부여 실패", e);
+    // }
+}
+
 
     function closeDailyGoalModal() {
       document.getElementById('dailyGoalModal').style.display = 'none';
