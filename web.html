@@ -281,6 +281,7 @@
 
       const buttons = [
         { label: '👤 내 백준 정보 보기', message: '내 백준 정보 보기' },
+        { label: '📅 주간 활동 보기', message: '주간 활동 보기' },
         { label: '📊 풀이 분포 보기', message: '풀이 분포 보기' },
         { label: '📈 난이도 추세', message: '난이도 추세' },
         { label: '🏆 도전 과제 생성', message: '도전 과제 생성' },
@@ -322,6 +323,8 @@
         recommendProblem();  // 랜덤 문제 추천 시 recommendProblem 호출
       } else if (message === "풀이 분포 보기") {
         showDistribution();
+      } else if (message === "주간 활동 보기") {
+        showWeeklyChart();
       } else {
       sendMessage(true);
       }
@@ -519,7 +522,60 @@ async function showDistribution() {
     displayMessage("⚠ 분포 데이터를 불러오는 데 실패했습니다.", 'bot-message');
   }
 }
+// 한주기록 시각화
+async function showWeeklyChart() {
+  const bojUsername = localStorage.getItem('bojUsername');
+  if (!bojUsername) {
+    displayMessage("⚠ 사용자 정보가 없습니다.", 'bot-message');
+    return;
+  }
 
+  const res = await fetch(`http://127.0.0.1:8000/weekly_activity?boj_username=${bojUsername}`);
+  const data = await res.json();
+
+  if (data.error) {
+    displayMessage(data.error, 'bot-message');
+    return;
+  }
+
+  const canvasId = 'weekly-chart';
+  const chartHtml = `
+    <div style="max-width: 500px; margin-top: 16px;">
+      <h4>📆 이번 주 풀이 현황</h4>
+      <canvas id="${canvasId}" width="400" height="300"></canvas>
+    </div>
+  `;
+  displayMessage(chartHtml, 'bot-message');
+
+  setTimeout(() => {
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    if (chartInstance !== null) chartInstance.destroy();
+
+    chartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: data.days,
+        datasets: [{
+          label: '푼 문제 수',
+          data: data.counts,
+          backgroundColor: '#337ab7',
+          borderRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            suggestedMax: Math.max(...data.counts) + 3,
+            ticks: { stepSize: 1 }
+          }
+        }
+      }
+    });
+  }, 150);
+}
 
 
     const settingsPage = document.getElementById("settings-page");
@@ -590,6 +646,8 @@ async function showDistribution() {
     function closeGoalModal() {
       document.getElementById("goal-modal").style.display = "none";
     }
+
+
   </script>
 </body>
 

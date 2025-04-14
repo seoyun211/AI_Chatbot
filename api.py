@@ -90,3 +90,12 @@ async def distribution(boj_username: str):
     if not data:
         return JSONResponse(content={"error": "분포 데이터를 가져올 수 없습니다."}, status_code=500)
     return JSONResponse(content=data)
+
+# 📆 주간 활동 API (GraphQL 기반 버전용)
+@app.get("/weekly_activity")
+async def weekly_activity(boj_username: str):
+    from backjoon import get_weekly_activity
+    data = await get_weekly_activity(boj_username)
+    if not data:
+        return JSONResponse(content={"error": "주간 데이터를 가져올 수 없습니다."}, status_code=500)
+    return JSONResponse(content=data)  # ✅ 여기 수정됨!
