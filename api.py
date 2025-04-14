@@ -21,6 +21,14 @@ app.add_middleware(
 # 📁 정적 파일 (예: 이미지) 서빙 경로 설정
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+@app.post("/chat")
+async def chat(question: str = Form(...), prompt: str = Form(None)):
+    try:
+        answer = ask_chatbot(question, custom_prompt=prompt)
+        return JSONResponse(content={"answer": answer})
+    except Exception as e:
+        return JSONResponse(content={"answer": f"⚠ 오류 발생: {e}"}, status_code=500)
+    
 # 📊 CSV 파일 기반 분석 요청 (POST)
 @app.post("/analyze")
 async def analyze(file: UploadFile, question: str = Form(...)):

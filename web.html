@@ -91,6 +91,7 @@
     <!-- 사이드바 -->
     <div class="sidebar" id="sidebar">
       <div class="menu-item" onclick="clearChat()">📄 새 채팅</div>
+      <div class="menu-item" onclick="openPromptSettings()">🧠 프롬프트 설정</div>
       <div class="menu-item" onclick="openSettings()">⚙ 설정</div>
     </div>
 
@@ -131,6 +132,77 @@
       <textarea class="input-box" id="input-box" placeholder="메시지를 입력하세요." rows="3"></textarea>
       <button class="send-button" onclick="sendMessage()">전송</button>
     </div>
+
+    <!-- ✅ web.html 수정 내용 전체
+<!-- ✅ 사이드바에 프롬프트 설정 메뉴 추가 -->
+<!-- ✅ 프롬프트 설정 모달 -->
+<div class="modal" id="promptModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:1000;">
+  <div class="modal-content" style="background:white; padding:20px; max-width:500px; margin:100px auto; border-radius:12px; position:relative;">
+    <span class="close" onclick="closePromptSettings()" style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:18px;">❌</span>
+    <h3>🧠 사용자 프롬프트 설정</h3>
+    <textarea id="custom-prompt" rows="4" style="width: 100%; margin-bottom: 10px;"></textarea>
+    <button onclick="saveCustomPrompt()">💾 저장</button>
+    <button onclick="viewPromptHistory()">🕘 기록 보기</button>
+    <div id="prompt-history" style="margin-top: 10px; font-size: 14px; color: #444;"></div>
+  </div>
+</div>
+
+<script>
+  // ✅ 프롬프트 설정 모달 열기
+  function openPromptSettings() {
+    document.getElementById("promptModal").style.display = "block";
+    document.getElementById("custom-prompt").value = localStorage.getItem("customPrompt") || "";
+    viewPromptHistory(); // 열릴 때 기록도 같이 보여줌
+  }
+
+  // ✅ 프롬프트 설정 모달 닫기
+  function closePromptSettings() {
+    document.getElementById("promptModal").style.display = "none";
+  }
+
+  // ✅ 프롬프트 저장
+  function saveCustomPrompt() {
+    const value = document.getElementById("custom-prompt").value.trim();
+    if (!value) return alert("프롬프트를 입력해주세요");
+    localStorage.setItem("customPrompt", value);
+
+    // 프롬프트 기록 추가
+    const history = JSON.parse(localStorage.getItem("promptHistory") || "[]");
+    history.push({ value, date: new Date().toLocaleString() });
+    localStorage.setItem("promptHistory", JSON.stringify(history));
+
+    alert("프롬프트가 저장되었습니다!");
+    viewPromptHistory(); // 저장 후 갱신
+  }
+
+  // ✅ 프롬프트 기록 보기 및 삭제 가능
+  function viewPromptHistory() {
+    const history = JSON.parse(localStorage.getItem("promptHistory") || "[]");
+    const container = document.getElementById("prompt-history");
+    if (history.length === 0) {
+      container.innerHTML = "<p>저장된 기록이 없습니다.</p>";
+      return;
+    }
+    container.innerHTML = history.map((h, i) => `
+      <div style="margin-bottom: 10px; padding: 8px; border: 1px solid #ccc; border-radius: 6px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <strong>🕘 ${h.date}</strong>
+          <button onclick="deletePrompt(${i})" style="background:#f44336; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">삭제</button>
+        </div>
+        <div style="margin-top: 4px; white-space: pre-wrap;">${h.value}</div>
+      </div>
+    `).join("");
+  }
+
+  // ✅ 프롬프트 기록 삭제
+  function deletePrompt(index) {
+    let history = JSON.parse(localStorage.getItem("promptHistory") || "[]");
+    if (!confirm("이 프롬프트 기록을 삭제할까요?")) return;
+    history.splice(index, 1);
+    localStorage.setItem("promptHistory", JSON.stringify(history));
+    viewPromptHistory(); // 다시 그려줌
+  }
+</script>
 
     <!-- 데일리 목표 모달 -->
     <div id="dailyGoalModal" class="modal"

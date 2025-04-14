@@ -5,12 +5,14 @@ from analy import run_pandas_code
 client = OpenAI(api_key="")  # OpenAI API 키 필요
 
 # 💬 단순 GPT 챗봇 응답 함수
-def ask_chatbot(question: str) -> str:
+def ask_chatbot(question: str, custom_prompt: str = None) -> str:
     model = "gpt-4"
+    prompt_text = custom_prompt or "친절하고 유용한 챗봇이야. 한국어로 대화해."
+
     gpt_response = client.chat.completions.create(
         model=model,
         messages=[
-            {"role": "system", "content": "친절하고 유용한 챗봇이야. 한국어로 대화해."},
+            {"role": "system", "content": prompt_text},
             {"role": "user", "content": question}
         ]
     )
