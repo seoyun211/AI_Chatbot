@@ -284,6 +284,7 @@
         { label: '📅 주간 활동 보기', message: '주간 활동 보기' },
         { label: '📊 풀이 분포 보기', message: '풀이 분포 보기' },
         { label: '📈 난이도 추세', message: '난이도 추세' },
+        { label: '📈 등급 별 공부법', message: '등급 별 공부법' },
         { label: '🏆 도전 과제 생성', message: '도전 과제 생성' },
         { label: '🧠 알고리즘별 분석', message: '알고리즘별 분석' },
         { label: '⏱ 평균 풀이 시간', message: '평균 풀이 시간' },
@@ -323,8 +324,12 @@
         recommendProblem();  // 랜덤 문제 추천 시 recommendProblem 호출
       } else if (message === "풀이 분포 보기") {
         showDistribution();
+      } else if (message === "도전 과제 생성") {
+        generateChallenge();  // 새 함수 호출
       } else if (message === "주간 활동 보기") {
         showWeeklyChart();
+      } else if (message === "등급 별 공부법") {
+        getRankUpTip();
       } else {
       sendMessage(true);
       }
@@ -522,6 +527,26 @@ async function showDistribution() {
     displayMessage("⚠ 분포 데이터를 불러오는 데 실패했습니다.", 'bot-message');
   }
 }
+
+// 도전 과제 생성
+async function generateChallenge() {
+  const bojUsername = localStorage.getItem('bojUsername');
+  if (!bojUsername) {
+    displayMessage("⚠ 사용자 정보가 없습니다.", 'bot-message');
+    return;
+  }
+
+  const res = await fetch(`http://127.0.0.1:8000/challenge?boj_username=${bojUsername}`);
+  const data = await res.json();
+
+  if (data.error) {
+    displayMessage(data.error, 'bot-message');
+  } else {
+    displayMessage(`🏆 도전 과제: ${data.challenge}`, 'bot-message');
+  }
+}
+
+
 // 한주기록 시각화
 async function showWeeklyChart() {
   const bojUsername = localStorage.getItem('bojUsername');
@@ -646,6 +671,24 @@ async function showWeeklyChart() {
     function closeGoalModal() {
       document.getElementById("goal-modal").style.display = "none";
     }
+
+// 등급업 전략 보여주기
+async function getRankUpTip() {
+  const bojUsername = localStorage.getItem('bojUsername');
+  if (!bojUsername) {
+    displayMessage("⚠ 사용자 정보가 없습니다.", 'bot-message');
+    return;
+  }
+
+  const res = await fetch(`http://127.0.0.1:8000/rankup_tip?boj_username=${bojUsername}`);
+  const data = await res.json();
+
+  if (data.error) {
+    displayMessage(data.error, 'bot-message');
+  } else {
+    displayMessage(`📈 등급 업 팁: ${data.tip}`, 'bot-message');
+  }
+}
 
 
   </script>

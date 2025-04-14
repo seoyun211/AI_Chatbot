@@ -112,6 +112,42 @@ async def get_distribution(boj_username: str):
     return {"levels": levels, "counts": level_counts}
 
 
+# 🎯 도전 과제 생성 로직
+async def generate_challenge_for_user(boj_username: str):
+    user = await get_user_info(boj_username)
+    if not user:
+        return "사용자 정보를 불러올 수 없습니다."
+
+    tier = user["tier"]
+    solved = user["solvedCount"]
+    tier_name = convert_tier_name(tier)
+
+    # 아주 단순한 로직 예시
+    next_tier = convert_tier_name(tier + 1) if tier + 1 < 31 else "최고 티어"
+    goal = solved + 5  # 단순 예시: 5문제 더 풀기
+
+    return f"{tier_name}에서 {next_tier}로 가기 위해 문제를 {goal - solved}개 더 풀어보세요!"
+
+# 📈 등급 업 전략 생성 로직
+async def generate_rankup_tip(boj_username: str):
+    user = await get_user_info(boj_username)
+    if not user:
+        return "사용자 정보를 불러올 수 없습니다."
+
+    tier = user["tier"]
+    tier_name = convert_tier_name(tier)
+
+    # 예시 로직: 티어별 추천 전략
+    if tier < 6:
+        tip = "브론즈는 구현, 수학, 문자열 문제 위주로 빠르게 풀이하세요."
+    elif tier < 11:
+        tip = "실버는 정렬, 탐색(BFS/DFS), 그리디 알고리즘이 중요합니다."
+    elif tier < 16:
+        tip = "골드는 자료구조, DP, 그래프 알고리즘을 공부하세요."
+    else:
+        tip = "이제는 알고리즘 난이도와 시간 복잡도 최적화가 핵심입니다."
+
+    return f"현재 티어: {tier_name} → {tip}"
 
 
 # 주간 해결 행정은 해제됨

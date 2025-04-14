@@ -99,3 +99,23 @@ async def weekly_activity(boj_username: str):
     if not data:
         return JSONResponse(content={"error": "주간 데이터를 가져올 수 없습니다."}, status_code=500)
     return JSONResponse(content=data)  # ✅ 여기 수정됨!
+
+# 🎯 도전 과제 생성 API
+@app.get("/challenge")
+async def generate_challenge(boj_username: str):
+    try:
+        from backjoon import generate_challenge_for_user
+        challenge = await generate_challenge_for_user(boj_username)
+        return JSONResponse(content={"challenge": challenge})
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+# 📈 등급 업 전략 안내 API
+@app.get("/rankup_tip")
+async def rankup_tip(boj_username: str):
+    try:
+        from backjoon import generate_rankup_tip
+        tip = await generate_rankup_tip(boj_username)
+        return JSONResponse(content={"tip": tip})
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
