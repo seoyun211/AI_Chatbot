@@ -132,22 +132,29 @@
       <button class="send-button" onclick="sendMessage()">전송</button>
     </div>
 
-    <!-- 데일리 목표 설정 영역 -->
-    <div id="daily-goal-section" style="margin-top: 30px; border: 1px solid #ccc; padding: 20px; border-radius: 12px;">
-      <h3>🎯 데일리 목표 설정</h3>
-      <label for="goalInput">목표 문제 수:</label>
-      <input type="number" id="goalInput" min="1" style="width: 80px; margin-left: 5px;">
-      <button onclick="setDailyGoal()">목표 설정</button>
+    <!-- 데일리 목표 모달 -->
+    <div id="dailyGoalModal" class="modal"
+      style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:1000;">
+      <div
+        style="background:white; padding:20px; max-width:400px; margin:100px auto; border-radius:12px; position:relative;">
+        <span onclick="closeDailyGoalModal()"
+          style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:18px;">❌</span>
+        <h3>🎯 데일리 목표 설정</h3>
 
-      <div id="progress-area" style="margin-top: 20px; display: none;">
-        <p>현재 푼 문제 수: <span id="solvedCount">0</span> / <span id="goalCount">0</span></p>
-        <div style="background-color: #eee; border-radius: 6px; overflow: hidden; height: 20px; max-width: 400px;">
-          <div id="progressBar" style="height: 100%; width: 0%; background-color: #4CAF50;"></div>
-        </div>
-        <div style="margin-top: 10px;">
-          <button onclick="changeSolvedCount(1)">+1</button>
-          <button onclick="changeSolvedCount(-1)">-1</button>
-          <button onclick="resetGoal()">목표 초기화</button>
+        <label for="goalInput">목표 문제 수:</label>
+        <input type="number" id="goalInput" min="1" style="width: 80px; margin: 8px 0;"><br>
+        <button onclick="setDailyGoal()">목표 설정</button>
+
+        <div id="progress-area" style="margin-top: 20px; display: none;">
+          <p>현재 푼 문제 수: <span id="solvedCount">0</span> / <span id="goalCount">0</span></p>
+          <div style="background-color: #eee; border-radius: 6px; overflow: hidden; height: 20px;">
+            <div id="progressBar" style="height: 100%; width: 0%; background-color: #4CAF50;"></div>
+          </div>
+          <div style="margin-top: 10px;">
+            <button onclick="changeSolvedCount(1)">+1</button>
+            <button onclick="changeSolvedCount(-1)">-1</button>
+            <button onclick="resetGoal()">목표 초기화</button>
+          </div>
         </div>
       </div>
     </div>
@@ -290,11 +297,7 @@
         { label: '🤖 AI 문제 추천', message: 'AI문제 추천' },
         { label: '🎲 랜덤 문제 추천', message: '랜덤 문제 추천' },
         { label: '👑 랭킹 시뮬레이션', message: '랭킹 시뮬레이션' },
-        {
-          label: '🎯 데일리 목표 설정', action: () => {
-            document.getElementById('daily-goal-section').scrollIntoView({ behavior: 'smooth' });
-          }
-        }
+        { label: '🎯 데일리 목표 설정', action: showDailyGoalModal }
       ];
 
       buttons.forEach(btn => {
@@ -884,7 +887,19 @@
       updateGoalUI();
     });
 
+    function showDailyGoalSection() {
+      const section = document.getElementById('daily-goal-section');
+      section.style.display = 'block';
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
 
+    function showDailyGoalModal() {
+      document.getElementById('dailyGoalModal').style.display = 'block';
+    }
+
+    function closeDailyGoalModal() {
+      document.getElementById('dailyGoalModal').style.display = 'none';
+    }
   </script>
 </body>
 
