@@ -135,55 +135,58 @@
 
     <!-- ✅ web.html 수정 내용 전체
 <!-- ✅ 사이드바에 프롬프트 설정 메뉴 추가 -->
-<!-- ✅ 프롬프트 설정 모달 -->
-<div class="modal" id="promptModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:1000;">
-  <div class="modal-content" style="background:white; padding:20px; max-width:500px; margin:100px auto; border-radius:12px; position:relative;">
-    <span class="close" onclick="closePromptSettings()" style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:18px;">❌</span>
-    <h3>🧠 사용자 프롬프트 설정</h3>
-    <textarea id="custom-prompt" rows="4" style="width: 100%; margin-bottom: 10px;"></textarea>
-    <button onclick="saveCustomPrompt()">💾 저장</button>
-    <button onclick="viewPromptHistory()">🕘 기록 보기</button>
-    <div id="prompt-history" style="margin-top: 10px; font-size: 14px; color: #444;"></div>
-  </div>
-</div>
+    <!-- ✅ 프롬프트 설정 모달 -->
+    <div class="modal" id="promptModal"
+      style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:1000;">
+      <div class="modal-content"
+        style="background:white; padding:20px; max-width:500px; margin:100px auto; border-radius:12px; position:relative;">
+        <span class="close" onclick="closePromptSettings()"
+          style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:18px;">❌</span>
+        <h3>🧠 사용자 프롬프트 설정</h3>
+        <textarea id="custom-prompt" rows="4" style="width: 100%; margin-bottom: 10px;"></textarea>
+        <button onclick="saveCustomPrompt()">💾 저장</button>
+        <button onclick="viewPromptHistory()">🕘 기록 보기</button>
+        <div id="prompt-history" style="margin-top: 10px; font-size: 14px; color: #444;"></div>
+      </div>
+    </div>
 
-<script>
-  // ✅ 프롬프트 설정 모달 열기
-  function openPromptSettings() {
-    document.getElementById("promptModal").style.display = "block";
-    document.getElementById("custom-prompt").value = localStorage.getItem("customPrompt") || "";
-    viewPromptHistory(); // 열릴 때 기록도 같이 보여줌
-  }
+    <script>
+      // ✅ 프롬프트 설정 모달 열기
+      function openPromptSettings() {
+        document.getElementById("promptModal").style.display = "block";
+        document.getElementById("custom-prompt").value = localStorage.getItem("customPrompt") || "";
+        viewPromptHistory(); // 열릴 때 기록도 같이 보여줌
+      }
 
-  // ✅ 프롬프트 설정 모달 닫기
-  function closePromptSettings() {
-    document.getElementById("promptModal").style.display = "none";
-  }
+      // ✅ 프롬프트 설정 모달 닫기
+      function closePromptSettings() {
+        document.getElementById("promptModal").style.display = "none";
+      }
 
-  // ✅ 프롬프트 저장
-  function saveCustomPrompt() {
-    const value = document.getElementById("custom-prompt").value.trim();
-    if (!value) return alert("프롬프트를 입력해주세요");
-    localStorage.setItem("customPrompt", value);
+      // ✅ 프롬프트 저장
+      function saveCustomPrompt() {
+        const value = document.getElementById("custom-prompt").value.trim();
+        if (!value) return alert("프롬프트를 입력해주세요");
+        localStorage.setItem("customPrompt", value);
 
-    // 프롬프트 기록 추가
-    const history = JSON.parse(localStorage.getItem("promptHistory") || "[]");
-    history.push({ value, date: new Date().toLocaleString() });
-    localStorage.setItem("promptHistory", JSON.stringify(history));
+        // 프롬프트 기록 추가
+        const history = JSON.parse(localStorage.getItem("promptHistory") || "[]");
+        history.push({ value, date: new Date().toLocaleString() });
+        localStorage.setItem("promptHistory", JSON.stringify(history));
 
-    alert("프롬프트가 저장되었습니다!");
-    viewPromptHistory(); // 저장 후 갱신
-  }
+        alert("프롬프트가 저장되었습니다!");
+        viewPromptHistory(); // 저장 후 갱신
+      }
 
-  // ✅ 프롬프트 기록 보기 및 삭제 가능
-  function viewPromptHistory() {
-    const history = JSON.parse(localStorage.getItem("promptHistory") || "[]");
-    const container = document.getElementById("prompt-history");
-    if (history.length === 0) {
-      container.innerHTML = "<p>저장된 기록이 없습니다.</p>";
-      return;
-    }
-    container.innerHTML = history.map((h, i) => `
+      // ✅ 프롬프트 기록 보기 및 삭제 가능
+      function viewPromptHistory() {
+        const history = JSON.parse(localStorage.getItem("promptHistory") || "[]");
+        const container = document.getElementById("prompt-history");
+        if (history.length === 0) {
+          container.innerHTML = "<p>저장된 기록이 없습니다.</p>";
+          return;
+        }
+        container.innerHTML = history.map((h, i) => `
       <div style="margin-bottom: 10px; padding: 8px; border: 1px solid #ccc; border-radius: 6px;">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <strong>🕘 ${h.date}</strong>
@@ -192,17 +195,17 @@
         <div style="margin-top: 4px; white-space: pre-wrap;">${h.value}</div>
       </div>
     `).join("");
-  }
+      }
 
-  // ✅ 프롬프트 기록 삭제
-  function deletePrompt(index) {
-    let history = JSON.parse(localStorage.getItem("promptHistory") || "[]");
-    if (!confirm("이 프롬프트 기록을 삭제할까요?")) return;
-    history.splice(index, 1);
-    localStorage.setItem("promptHistory", JSON.stringify(history));
-    viewPromptHistory(); // 다시 그려줌
-  }
-</script>
+      // ✅ 프롬프트 기록 삭제
+      function deletePrompt(index) {
+        let history = JSON.parse(localStorage.getItem("promptHistory") || "[]");
+        if (!confirm("이 프롬프트 기록을 삭제할까요?")) return;
+        history.splice(index, 1);
+        localStorage.setItem("promptHistory", JSON.stringify(history));
+        viewPromptHistory(); // 다시 그려줌
+      }
+    </script>
 
     <!-- 데일리 목표 모달 -->
     <div id="dailyGoalModal" class="modal"
@@ -211,18 +214,24 @@
         style="background:white; padding:20px; max-width:400px; margin:100px auto; border-radius:12px; position:relative;">
         <span onclick="closeDailyGoalModal()"
           style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:18px;">❌</span>
-        <h3>🎯 데일리 목표 설정</h3>
+        <h3 style="margin-top:10px; margin-bottom:20px;">🎯 데일리 목표 설정</h3>
 
         <label for="goalInput">목표 문제 수:</label>
         <input type="number" id="goalInput" min="1" style="width: 80px; margin: 8px 0;"><br>
         <button onclick="setDailyGoal()">목표 설정</button>
 
-        <div id="progress-area" style="margin-top: 20px; display: none;">
-          <p>현재 푼 문제 수: <span id="solvedCount">0</span> / <span id="goalCount">0</span></p>
-          <div style="background-color: #eee; border-radius: 6px; overflow: hidden; height: 20px;">
+        <div id="progress-area"
+          style="margin-top: 20px; display: none; text-align: center; position: relative; z-index: 10;">
+          <p
+            style="font-size: 16px; font-weight: bold; margin: 0; text-align: center; padding-right: 20px; position: relative;">
+            현재 푼 문제 수:
+            <span id="solvedCount" style="font-weight: bold; position: static;">0</span> /
+            <span id="goalCount" style="color: #2c3e50; position: static; display: inline;">0</span>
+          </p>
+          <div style="background-color: #eee; border-radius: 6px; overflow: hidden; height: 20px; margin-top: 10px;">
             <div id="progressBar" style="height: 100%; width: 0%; background-color: #4CAF50;"></div>
           </div>
-          <div style="margin-top: 10px;">
+          <div style="margin-top: 10px; text-align: center;">
             <button onclick="changeSolvedCount(1)">+1</button>
             <button onclick="changeSolvedCount(-1)">-1</button>
             <button onclick="resetGoal()">목표 초기화</button>
@@ -248,36 +257,36 @@
     }
 
     async function sendMessage(skipUserMessage = false) {
-  const inputBox = document.getElementById('input-box');
-  const fileInput = document.getElementById('file-input');
-  const message = inputBox.value.trim();
-  const bojUsername = localStorage.getItem('bojUsername') || "";
+      const inputBox = document.getElementById('input-box');
+      const fileInput = document.getElementById('file-input');
+      const message = inputBox.value.trim();
+      const bojUsername = localStorage.getItem('bojUsername') || "";
 
-  if (!message) return;
+      if (!message) return;
 
-  if (!skipUserMessage) {
-    displayMessage(message, 'user-message');
-  }
+      if (!skipUserMessage) {
+        displayMessage(message, 'user-message');
+      }
 
-  inputBox.value = '';
+      inputBox.value = '';
 
-  const formData = new FormData();
-  formData.append('question', message);
-  formData.append('boj_username', bojUsername);
-  formData.append('prompt', localStorage.getItem("customPrompt") || "");  // ✅ 프롬프트 포함
+      const formData = new FormData();
+      formData.append('question', message);
+      formData.append('boj_username', bojUsername);
+      formData.append('prompt', localStorage.getItem("customPrompt") || "");  // ✅ 프롬프트 포함
 
-  const url = fileInput && fileInput.files && fileInput.files.length > 0
-    ? 'http://127.0.0.1:8000/analyze'
-    : 'http://127.0.0.1:8000/chat';
+      const url = fileInput && fileInput.files && fileInput.files.length > 0
+        ? 'http://127.0.0.1:8000/analyze'
+        : 'http://127.0.0.1:8000/chat';
 
-  try {
-    const response = await fetch(url, { method: 'POST', body: formData });
-    const data = await response.json();
-    displayMessage(data.summary || data.answer || "오류 발생", 'bot-message');
-  } catch (error) {
-    displayMessage("⚠ 서버와 통신 중 오류 발생", 'bot-message');
-  }
-}
+      try {
+        const response = await fetch(url, { method: 'POST', body: formData });
+        const data = await response.json();
+        displayMessage(data.summary || data.answer || "오류 발생", 'bot-message');
+      } catch (error) {
+        displayMessage("⚠ 서버와 통신 중 오류 발생", 'bot-message');
+      }
+    }
 
 
     function displayMessage(msg, className) {
@@ -482,11 +491,11 @@
         return;
       }
 
-  try {
-    // const res = await fetch(`http://127.0.0.1:8000/recommend?boj_username=${bojUsername}`);
-    const res = await fetch(`http://127.0.0.1:8000/recommend?boj_username=${bojUsername}`);
+      try {
+        // const res = await fetch(`http://127.0.0.1:8000/recommend?boj_username=${bojUsername}`);
+        const res = await fetch(`http://127.0.0.1:8000/recommend?boj_username=${bojUsername}`);
 
-    const data = await res.json();
+        const data = await res.json();
 
 
         if (data.error) {
@@ -985,19 +994,19 @@
       section.scrollIntoView({ behavior: 'smooth' });
     }
 
-  async function showDailyGoalModal() {
-    document.getElementById('dailyGoalModal').style.display = 'block';
+    async function showDailyGoalModal() {
+      document.getElementById('dailyGoalModal').style.display = 'block';
 
-    //   try {
-    //   const res = await fetch('http://127.0.0.1:8000/daily_tip');  // ✅ 정상 작동
-    //   const data = await res.json();
-    //   if (data.tip) {
-    //     displayMessage(`💡 ${data.tip}`, 'bot-message');
-    //   }
-    // } catch (e) {
-    //   console.log("GPT 동기부여 실패", e);
-    // }
-}
+      //   try {
+      //   const res = await fetch('http://127.0.0.1:8000/daily_tip');  // ✅ 정상 작동
+      //   const data = await res.json();
+      //   if (data.tip) {
+      //     displayMessage(`💡 ${data.tip}`, 'bot-message');
+      //   }
+      // } catch (e) {
+      //   console.log("GPT 동기부여 실패", e);
+      // }
+    }
 
 
     function closeDailyGoalModal() {
