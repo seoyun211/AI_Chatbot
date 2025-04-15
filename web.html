@@ -236,6 +236,10 @@
             <button onclick="changeSolvedCount(-1)">-1</button>
             <button onclick="resetGoal()">목표 초기화</button>
           </div>
+          <div id="congratsMessage"
+            style="display:none; text-align:center; color:green; font-weight:bold; font-size:18px; margin-top:10px;">
+            🎉 목표 달성! 🎉
+          </div>
         </div>
       </div>
     </div>
@@ -948,9 +952,22 @@
     function changeSolvedCount(delta) {
       let current = parseInt(localStorage.getItem('solvedToday') || '0');
       const goal = parseInt(localStorage.getItem('dailyGoal') || '0');
+
+      // +1 / -1을 누를 때마다 푼 문제 수 업데이트
       current = Math.max(0, current + delta); // 0 미만으로 안 내려가게
+
+      // localStorage에 푼 문제 수 저장
       localStorage.setItem('solvedToday', current);
+
+      // UI 업데이트 (푼 문제 수와 목표 업데이트)
       updateGoalUI();
+
+      // 목표 달성 체크: 목표를 달성하면 축하 메시지 표시
+      if (goal > 0 && current >= goal) {
+        document.getElementById('congratsMessage').style.display = 'block'; // 목표 달성 시 메시지 표시
+      } else {
+        document.getElementById('congratsMessage').style.display = 'none'; // 목표 미달성 시 메시지 숨김
+      }
     }
 
     // UI 업데이트
@@ -978,9 +995,10 @@
     // 목표 초기화
     function resetGoal() {
       localStorage.removeItem('dailyGoal');
-      localStorage.removeItem('solvedToday');
+      localStorage.removeItem('solvedCount');
       document.getElementById('goalInput').value = '';
-      updateGoalUI();
+      document.getElementById('progress-area').style.display = 'none';
+      document.getElementById('congratsMessage').style.display = 'none'; // 메시지도 숨기기
     }
 
     // 페이지 로드 시 자동 복원
