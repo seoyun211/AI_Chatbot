@@ -169,10 +169,10 @@ async def generate_challenge_for_user(boj_username: str):
     problem_cards = "".join([
         f"""
         <button onclick="window.open('{p['url']}', '_blank')"
-                style="padding: 10px 14px; background-color: #ffffff;
+                style="padding: 10px 14px; background-color: #9ac39c;
                        border: 1px solid #ccc; border-radius: 8px;
                        text-align: left; margin-bottom: 8px;
-                       cursor: pointer; width: 100%;">
+                       cursor: pointer; width: 100%; color: #ffffff; font-weight: 600;">
             {i+1}. {p['title']}
         </button>
         """
@@ -180,11 +180,11 @@ async def generate_challenge_for_user(boj_username: str):
     ])
 
     html_message = f"""
-    <div style="background-color: #f0f8ff; border-left: 6px solid #4682b4;
+    <div style="background-color: #ffffff; 
                 padding: 16px; border-radius: 12px;
                 font-family: 'Pretendard', sans-serif; max-width: 400px;">
-        <h3 style="margin-top: 0;">🎯 현재 티어: <strong style="color: #2f4f4f;">{tier_name}</strong></h3>
-        <p style="margin: 4px 0 16px;">🆙 다음 티어 <strong style="color: #4169e1;">({next_tier_name})</strong>를 향해 도전해보세요!</p>
+        <h3 style="margin-top: 0;">🎯 현재 티어: <strong style="color: #0F0F0F;">{tier_name}</strong></h3>
+        <p style="margin: 4px 0 16px;">다음 티어 <strong style="color: #0F0F0F;">({next_tier_name})</strong>를 향해 도전해보세요!</p>
         <div style="display: flex; flex-direction: column;">
             {problem_cards}
         </div>

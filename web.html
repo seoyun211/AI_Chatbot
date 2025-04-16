@@ -667,6 +667,7 @@
         <div style="background: #ffffff; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); padding: 16px; margin: 18px 0; max-width: 640px;">
           <h3 style="margin-bottom: 10px;">🎯 ${data.title}</h3>
           <p style="margin: 6px 0;"> 다음 티어를 향해 도전해보세요!</p>
+           ${data.challenge} <!-- 이 부분 추가 -->
       `;
 
       data.problems.forEach((p, i) => {
@@ -691,8 +692,6 @@
 
       html += `</div>`;
       div.innerHTML = html;
-      chatBox.appendChild(div);
-      chatBox.scrollTop = chatBox.scrollHeight;
     }
 
     // 한주기록 시각화
