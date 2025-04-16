@@ -123,6 +123,7 @@ async def get_distribution(boj_username: str):
     return {"levels": levels, "counts": level_counts}
 
 # ✅ 도전 과제 생성
+
 async def get_problems_by_level(level: int, count: int = 5):
     async with httpx.AsyncClient() as client:
         res = await client.get(
@@ -134,10 +135,11 @@ async def get_problems_by_level(level: int, count: int = 5):
         data = res.json()
         problems = data.get("items", [])
 
-        korean_problems = [p for p in problems if p.get('lang') == 'ko']
-        
-        random.shuffle(problems)
-        selected = problems[:count]
+        # titleKo가 있는 문제만 사용 (언어 필터)
+        korean_problems = [p for p in problems if "titleKo" in p]
+
+        random.shuffle(korean_problems)
+        selected = korean_problems[:count]
 
         return [
             {
@@ -148,6 +150,7 @@ async def get_problems_by_level(level: int, count: int = 5):
             for problem in selected
         ]
 
+
 async def generate_challenge_for_user(boj_username: str):
     user = await get_user_info(boj_username)
     if not user:
@@ -155,23 +158,40 @@ async def generate_challenge_for_user(boj_username: str):
 
     tier = user["tier"]
     tier_name = convert_tier_name(tier)
-    next_tier = tier + 1 if tier + 1 < 31 else 30  # 최고 티어 초과 방지
+    next_tier = tier + 1 if tier + 1 < 31 else 30
     next_tier_name = convert_tier_name(next_tier)
 
     problems = await get_problems_by_level(next_tier, count=5)
     if not problems:
         return "⚠ 추천할 문제를 불러올 수 없습니다."
 
-    problem_links = "\n".join(
-        [f"<button onclick='window.open(\"https://www.acmicpc.net/problem/{p['id']}\", \"_blank\")'>{i+1}. {p['title']}</button>" for i, p in enumerate(problems)]
-    )
+    # 카드 UI 형태의 HTML
+    problem_cards = "".join([
+        f"""
+        <button onclick="window.open('{p['url']}', '_blank')"
+                style="padding: 10px 14px; background-color: #ffffff;
+                       border: 1px solid #ccc; border-radius: 8px;
+                       text-align: left; margin-bottom: 8px;
+                       cursor: pointer; width: 100%;">
+            {i+1}. {p['title']}
+        </button>
+        """
+        for i, p in enumerate(problems)
+    ])
 
-    return (
-        f"🎯 현재 티어: {tier_name}\n"
-        f"🆙 다음 티어({next_tier_name})를 향해 도전해보세요!\n\n"
-        f"{problem_links}"
-    )
+    html_message = f"""
+    <div style="background-color: #f0f8ff; border-left: 6px solid #4682b4;
+                padding: 16px; border-radius: 12px;
+                font-family: 'Pretendard', sans-serif; max-width: 400px;">
+        <h3 style="margin-top: 0;">🎯 현재 티어: <strong style="color: #2f4f4f;">{tier_name}</strong></h3>
+        <p style="margin: 4px 0 16px;">🆙 다음 티어 <strong style="color: #4169e1;">({next_tier_name})</strong>를 향해 도전해보세요!</p>
+        <div style="display: flex; flex-direction: column;">
+            {problem_cards}
+        </div>
+    </div>
+    """
 
+    return html_message
 
 # ✅ 등급 업 전략 안내
 async def generate_rankup_tip(boj_username: str):

@@ -556,6 +556,7 @@
         displayMessage("⚠ 추천 문제를 가져오는 중 오류가 발생했습니다.", 'bot-message');
       }
     }
+
     let chartInstance = null;  // 전역으로 Chart 인스턴스를 저장
 
     async function showDistribution() {
@@ -649,14 +650,50 @@
       const res = await fetch(`http://127.0.0.1:8000/challenge?boj_username=${bojUsername}`);
       const data = await res.json();
 
-      console.log(data);  // 이 줄을 추가하여 응답 데이터를 확인
-      if (data.error) {
-          displayMessage(data.error, 'bot-message');
-      } else {
-          displayMessage(data.challenge, 'bot-message');
-      }
-  }
+      console.log(data);
 
+      if (data.error) {
+        displayMessage(data.error, 'bot-message');
+        return;
+      }
+
+      const div = document.createElement("div");
+      div.className = "message bot-message";
+      div.innerHTML = data.challenge;
+      document.getElementById("chat-box").appendChild(div);
+
+      // 🔽 카드 HTML 구성
+      let html = `
+        <div style="background: #ffffff; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); padding: 16px; margin: 18px 0; max-width: 640px;">
+          <h3 style="margin-bottom: 10px;">🎯 ${data.title}</h3>
+          <p style="margin: 6px 0;"> 다음 티어를 향해 도전해보세요!</p>
+      `;
+
+      data.problems.forEach((p, i) => {
+        html += `
+          <a href="https://www.acmicpc.net/problem/${p.id}" target="_blank" style="
+            display: block;
+            margin: 8px 0;
+            padding: 14px 16px;
+            background-color: #ffffff;
+            border: 1.5px solid #ddd;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #222;
+            font-weight: 600;
+            transition: background 0.2s;, transform 0.1s;
+          " onmouseover="this.style.backgroundColor='#f0f0f0'; this.style.transform='scale(1.01)'"
+            onmouseout="this.style.backgroundColor='#ffffff'; this.style.transform='scale(1)'">
+            ${i + 1}. ${p.title}
+          </a>
+        `;
+      });
+
+      html += `</div>`;
+      div.innerHTML = html;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
 
     // 한주기록 시각화
     async function showWeeklyChart() {
