@@ -649,12 +649,13 @@
       const res = await fetch(`http://127.0.0.1:8000/challenge?boj_username=${bojUsername}`);
       const data = await res.json();
 
+      console.log(data);  // 이 줄을 추가하여 응답 데이터를 확인
       if (data.error) {
-        displayMessage(data.error, 'bot-message');
+          displayMessage(data.error, 'bot-message');
       } else {
-        displayMessage(`🏆 도전 과제: ${data.challenge}`, 'bot-message');
+          displayMessage(data.challenge, 'bot-message');
       }
-    }
+  }
 
 
     // 한주기록 시각화

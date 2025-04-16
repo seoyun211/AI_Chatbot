@@ -123,19 +123,55 @@ async def get_distribution(boj_username: str):
     return {"levels": levels, "counts": level_counts}
 
 # ✅ 도전 과제 생성
+async def get_problems_by_level(level: int, count: int = 5):
+    async with httpx.AsyncClient() as client:
+        res = await client.get(
+            f"https://solved.ac/api/v3/search/problem?query=level:{level}&sort=random"
+        )
+        if res.status_code != 200:
+            return []
+
+        data = res.json()
+        problems = data.get("items", [])
+
+        korean_problems = [p for p in problems if p.get('lang') == 'ko']
+        
+        random.shuffle(problems)
+        selected = problems[:count]
+
+        return [
+            {
+                "title": problem["titleKo"],
+                "id": problem["problemId"],
+                "url": f"https://www.acmicpc.net/problem/{problem['problemId']}"
+            }
+            for problem in selected
+        ]
+
 async def generate_challenge_for_user(boj_username: str):
     user = await get_user_info(boj_username)
     if not user:
-        return "사용자 정보를 불러올 수 없습니다."
+        return "⚠ 사용자 정보를 불러올 수 없습니다."
 
     tier = user["tier"]
-    solved = user["solvedCount"]
     tier_name = convert_tier_name(tier)
+    next_tier = tier + 1 if tier + 1 < 31 else 30  # 최고 티어 초과 방지
+    next_tier_name = convert_tier_name(next_tier)
 
-    next_tier = convert_tier_name(tier + 1) if tier + 1 < 31 else "최고 티어"
-    goal = solved + 5  # 목표 설정 예시
+    problems = await get_problems_by_level(next_tier, count=5)
+    if not problems:
+        return "⚠ 추천할 문제를 불러올 수 없습니다."
 
-    return f"{tier_name}에서 {next_tier}로 가기 위해 문제를 {goal - solved}개 더 풀어보세요!"
+    problem_links = "\n".join(
+        [f"<button onclick='window.open(\"https://www.acmicpc.net/problem/{p['id']}\", \"_blank\")'>{i+1}. {p['title']}</button>" for i, p in enumerate(problems)]
+    )
+
+    return (
+        f"🎯 현재 티어: {tier_name}\n"
+        f"🆙 다음 티어({next_tier_name})를 향해 도전해보세요!\n\n"
+        f"{problem_links}"
+    )
+
 
 # ✅ 등급 업 전략 안내
 async def generate_rankup_tip(boj_username: str):
