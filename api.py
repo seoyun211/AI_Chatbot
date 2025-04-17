@@ -3,7 +3,8 @@ from fastapi import FastAPI, UploadFile, Form
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-
+import httpx
+from backjoon import get_all_solved_problem_ids
 from datetime import datetime
 from gpt_service import analyze_file, ask_chatbot, analyze_boj_info
 from backjoon import get_user_info, recommend_problem, get_ai_problem_recommendation, get_distribution
@@ -130,3 +131,29 @@ async def rankup_tip(boj_username: str):
         return JSONResponse(content={"tip": tip})
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+## 인기있는 문제
+@app.get("/popular_problems")
+async def popular_problems(boj_username: str, count: int = 5):
+    user_data = await get_user_info(boj_username)
+    if not user_data:
+        return JSONResponse(content={"error": "사용자 정보를 찾을 수 없습니다."}, status_code=404)
+    
+    tier = user_data.get("tier", 1)
+    query = f"tier:{tier}"
+    url = f"https://solved.ac/api/v3/search/problem?query={query}&sort=solved&direction=desc"
+
+    async with httpx.AsyncClient() as client:
+        res = await client.get(url)
+        problems = res.json().get("items", [])[:count]
+
+    formatted_problems = [
+        {
+            "problemId": p["problemId"],
+            "title": p["titleKo"],
+            "solvedCount": p.get("acceptedUserCount", "정보 없음"),  # 🔥 필드 수정 완료
+            "tier": p["level"],
+            "url": f"https://www.acmicpc.net/problem/{p['problemId']}"
+        } for p in problems
+    ]
+
+    return JSONResponse(content={"problems": formatted_problems})

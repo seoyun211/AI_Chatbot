@@ -378,9 +378,15 @@
         { label: '👤 내 백준 정보 보기', message: '내 백준 정보 보기' },
         { label: '📅 주간 활동 보기', message: '주간 활동 보기' },
         { label: '📊 풀이 분포 보기', message: '풀이 분포 보기' },
+        { label: '📈 난이도 추세', message: '난이도 추세' },
         { label: '📈 등급 별 공부법', message: '등급 별 공부법' },
         { label: '🏆 도전 과제 생성', message: '도전 과제 생성' },
+        { label: '🧠 알고리즘별 분석', message: '알고리즘별 분석' },
+        { label: '⏱ 평균 풀이 시간', message: '평균 풀이 시간' },
         { label: '🤖 AI 문제 추천', message: 'AI문제 추천' },
+        { label: '🥇 티어 인기 문제 추천', message: '티어 인기 문제 추천' },
+        { label: '🎲 랜덤 문제 추천', message: '랜덤 문제 추천' },
+        { label: '👑 랭킹 시뮬레이션', message: '랭킹 시뮬레이션' },
         { label: '🎯 데일리 목표 설정', action: showDailyGoalModal }
       ];
 
@@ -430,6 +436,8 @@
         generateChallenge();  // 새 함수 호출
       } else if (message === "주간 활동 보기") {
         showWeeklyChart();
+      }  else if (message === "티어 인기 문제 추천") { 
+        fetchPopularProblems(); 
       } else if (message === "등급 별 공부법") {
         getRankUpTip();
       } else {
@@ -662,7 +670,6 @@
         <div style="background: #ffffff; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); padding: 16px; margin: 18px 0; max-width: 640px;">
           <h3 style="margin-bottom: 10px;">🎯 ${data.title}</h3>
           <p style="margin: 6px 0;"> 다음 티어를 향해 도전해보세요!</p>
-           ${data.challenge} <!-- 이 부분 추가 -->
       `;
 
       data.problems.forEach((p, i) => {
@@ -687,6 +694,8 @@
 
       html += `</div>`;
       div.innerHTML = html;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
     }
 
     // 한주기록 시각화
@@ -1062,6 +1071,51 @@
     function closeDailyGoalModal() {
       document.getElementById('dailyGoalModal').style.display = 'none';
     }
+
+    async function fetchPopularProblems() {
+  const bojUsername = localStorage.getItem('bojUsername');
+  if (!bojUsername) {
+    alert("사용자 정보를 찾을 수 없습니다.");
+    return;
+  }
+
+  try {
+    const res = await fetch(`http://127.0.0.1:8000/popular_problems?boj_username=${bojUsername}`);
+    const data = await res.json();
+
+    if (data.error) {
+      displayMessage(`⚠ ${data.error}`, 'bot-message');
+      return;
+    }
+
+    let html = `
+      <div style="margin-top:10px;">
+        <strong>🥇 티어 인기 문제 추천</strong>
+        ${data.problems.map(p => `
+          <div style="margin-top:8px;">
+            <a href="${p.url}" target="_blank">
+              📌 ${p.title} (🔥 ${p.solvedCount}명 해결)
+            </a>
+          </div>`).join('')}
+      </div>`;
+
+    displayMessage(html, 'bot-message');
+
+  } catch (error) {
+    displayMessage("⚠ 문제를 불러오는 중 오류가 발생했습니다.", 'bot-message');
+  }
+}
+
+// 기존에 있던 displayMessage 함수 (이미 존재)
+function displayMessage(msg, className) {
+  const chatBox = document.getElementById('chat-box');
+  const div = document.createElement('div');
+  div.className = `message ${className}`;
+  div.innerHTML = msg;
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
   </script>
 </body>
 
