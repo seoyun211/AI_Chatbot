@@ -157,3 +157,28 @@ async def popular_problems(boj_username: str, count: int = 5):
     ]
 
     return JSONResponse(content={"problems": formatted_problems})
+
+@app.get("/problem_feedback")
+async def problem_feedback(problem_id: int):
+    try:
+        async with httpx.AsyncClient() as client:
+            res = await client.get(f"https://solved.ac/api/v3/problem/show?problemId={problem_id}")
+            if res.status_code != 200:
+                raise Exception("문제 정보를 가져오지 못했습니다.")
+
+            problem = res.json()
+            title = problem["titleKo"]
+            tags = [tag["displayNames"][0]["name"] for tag in problem["tags"]]
+
+            tag_string = ", ".join(tags)
+            prompt = (
+                f"백준 문제 [{title}]은 다음과 같은 태그를 가지고 있어: {tag_string}. "
+                f"이 문제를 풀기 위한 전략과 유의할 점을 한국어로 친절하게 설명해줘. 너무 길지 않게 3~5줄로 요약해줘."
+            )
+
+        from gpt_service import ask_chatbot
+        answer = ask_chatbot(prompt)
+        return JSONResponse(content={"feedback": answer})
+
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)

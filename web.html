@@ -382,6 +382,7 @@
         { label: '📈 등급 별 공부법', message: '등급 별 공부법' },
         { label: '🏆 도전 과제 생성', message: '도전 과제 생성' },
         { label: '🤖 AI 문제 추천', message: 'AI문제 추천' },
+        { label: '🧠 문제 풀이 전략 받기', message: '문제 풀이 전략' },
         { label: '🥇 티어 인기 문제 추천', message: '티어 인기 문제 추천' },
         { label: '🎯 데일리 목표 설정', action: showDailyGoalModal }
       ];
@@ -436,6 +437,9 @@
         fetchPopularProblems(); 
       } else if (message === "등급 별 공부법") {
         getRankUpTip();
+      } else if (message === "문제 풀이 전략") {
+        const pid = prompt("문제 번호를 입력하세요 (예: 1000):");
+        if (pid) fetchProblemFeedback(pid);
       } else {
         sendMessage(true);
       }
@@ -1110,6 +1114,17 @@ function displayMessage(msg, className) {
   div.innerHTML = msg;
   chatBox.appendChild(div);
   chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+async function fetchProblemFeedback(problemId) {
+  const res = await fetch(`http://127.0.0.1:8000/problem_feedback?problem_id=${problemId}`);
+  const data = await res.json();
+
+  if (data.error) {
+    displayMessage("⚠ " + data.error, 'bot-message');
+  } else {
+    displayMessage("🧠 <strong>전략 요약:</strong><br>" + data.feedback, 'bot-message');
+  }
 }
 
   </script>

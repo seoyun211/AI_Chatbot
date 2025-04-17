@@ -53,8 +53,6 @@ def analyze_file(file, question: str):
                 {"role": "system", "content": "1. 한국어로 말해줘"},
                 {"role": "system", "content": "2. 프로그래밍을 하는 사람들이 너에게 질문 할거야야"},
                 {"role": "system", "content": "3. 그들이 알려달라는것을 친절히 알려줘줘"},
-                {"role": "system", "content": "4. "},
-                {"role": "system", "content": "5. "},
                 {"role": "user", "content": question}
             ],
             timeout=20
