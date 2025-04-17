@@ -435,8 +435,8 @@
         generateTierExperience();
       } else if (message === "주간 활동 보기") {
         showWeeklyChart();
-      }  else if (message === "티어 인기 문제 추천") { 
-        fetchPopularProblems(); 
+      } else if (message === "티어 인기 문제 추천") {
+        fetchPopularProblems();
       } else if (message === "등급 별 공부법") {
         getRankUpTip();
       } else if (message === "문제 풀이 전략") {
@@ -1152,7 +1152,7 @@
         return;
       }
 
-      try {
+
         const res = await fetch(`http://127.0.0.1:8000/popular_problems?boj_username=${bojUsername}`);
         const data = await res.json();
 
@@ -1197,8 +1197,30 @@
         document.getElementById("chat-box").appendChild(div);
         chatBox.scrollTop = chatBox.scrollHeight;
 
-      } catch (error) {
-        displayMessage("⚠ 문제를 불러오는 중 오류가 발생했습니다.", 'bot-message');
+
+    }
+    // 문제 풀이 전략 받기 (문제 번호 기반)
+    async function fetchProblemFeedback(problemId) {
+      try {
+        const res = await fetch(`http://127.0.0.1:8000/problem_feedback?problem_id=${problemId}`);
+        const data = await res.json();
+
+        if (data.error) {
+          displayMessage("⚠ " + data.error, 'bot-message');
+          return;
+        }
+
+        const feedbackHtml = `
+        <div style="background: #fef9e7; padding: 16px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin: 16px 0;">
+          <h4 style="margin-top: 0; color: #d35400;">🧠 문제 풀이 전략</h4>
+          <p style="font-size: 15px; color: #333;">${data.feedback}</p>
+        </div>
+      `;
+
+        displayMessage(feedbackHtml, 'bot-message');
+
+      } catch (e) {
+        displayMessage("⚠ 전략을 가져오는 중 오류가 발생했습니다.", 'bot-message');
       }
     }
 
