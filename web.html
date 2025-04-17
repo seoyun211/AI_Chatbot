@@ -1147,59 +1147,62 @@
     }
 
     async function fetchPopularProblems() {
-  const bojUsername = localStorage.getItem('bojUsername');
-  if (!bojUsername) {
-    alert("사용자 정보를 찾을 수 없습니다.");
-    return;
-  }
+      const bojUsername = localStorage.getItem('bojUsername');
+      if (!bojUsername) {
+        alert("사용자 정보를 찾을 수 없습니다.");
+        return;
+      }
 
-  try {
-    const res = await fetch(`http://127.0.0.1:8000/popular_problems?boj_username=${bojUsername}`);
-    const data = await res.json();
+      try {
+        const res = await fetch(`http://127.0.0.1:8000/popular_problems?boj_username=${bojUsername}`);
+        const data = await res.json();
 
-    if (data.error) {
-      displayMessage(`⚠ ${data.error}`, 'bot-message');
-      return;
+        if (data.error) {
+          displayMessage(`⚠ ${data.error}`, 'bot-message');
+          return;
+        }
+
+        const div = document.createElement("div");
+        div.className = "message bot-message";
+
+        let html = `
+          <div style="background: #f0f8ff; border-radius: 12px; padding: 20px;
+                      margin: 20px 0; max-width: 640px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+            <h3 style="margin: 0 0 20px; color: #3558a2;">🥇 티어 인기 문제 추천</h3>
+        `;
+
+        data.problems.forEach((p, i) => {
+          html += `
+            <div style="display: flex; justify-content: space-between; align-items: center;
+                        background-color: #ffffff; border: 1.5px solid #d0d8e8;
+                        border-radius: 10px; padding: 12px 16px; margin-bottom: 12px;
+                        box-shadow: 0 2px 6px rgba(0,0,0,0.05); transition: transform 0.2s;"
+                onmouseover="this.style.transform='scale(1.01)'"
+                onmouseout="this.style.transform='scale(1)'">
+              <div style="font-size: 15px; font-weight: 600; color: #333; flex-grow: 1;">
+                ${i + 1}. ${p.title}
+                <div style="font-size: 13px; color: #888;">🔥 ${p.solvedCount}명 해결</div>
+              </div>
+              <a href="${p.url}" target="_blank" style="
+                padding: 6px 10px; background: #4e83f1; color: white;
+                text-decoration: none; border-radius: 6px; font-size: 13px;
+                font-weight: 500;">
+                문제 풀기 🔗
+              </a>
+            </div>
+          `;
+        });
+
+        html += "</div>";
+        div.innerHTML = html;
+        document.getElementById("chat-box").appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+      } catch (error) {
+        displayMessage("⚠ 문제를 불러오는 중 오류가 발생했습니다.", 'bot-message');
+      }
     }
 
-    let html = `
-      <div style="margin-top:10px;">
-        <strong>🥇 티어 인기 문제 추천</strong>
-        ${data.problems.map(p => `
-          <div style="margin-top:8px;">
-            <a href="${p.url}" target="_blank">
-              📌 ${p.title} (🔥 ${p.solvedCount}명 해결)
-            </a>
-          </div>`).join('')}
-      </div>`;
-
-    displayMessage(html, 'bot-message');
-
-  } catch (error) {
-    displayMessage("⚠ 문제를 불러오는 중 오류가 발생했습니다.", 'bot-message');
-  }
-}
-
-// 기존에 있던 displayMessage 함수 (이미 존재)
-function displayMessage(msg, className) {
-  const chatBox = document.getElementById('chat-box');
-  const div = document.createElement('div');
-  div.className = `message ${className}`;
-  div.innerHTML = msg;
-  chatBox.appendChild(div);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-async function fetchProblemFeedback(problemId) {
-  const res = await fetch(`http://127.0.0.1:8000/problem_feedback?problem_id=${problemId}`);
-  const data = await res.json();
-
-  if (data.error) {
-    displayMessage("⚠ " + data.error, 'bot-message');
-  } else {
-    displayMessage("🧠 <strong>전략 요약:</strong><br>" + data.feedback, 'bot-message');
-  }
-}
 
   </script>
 </body>
