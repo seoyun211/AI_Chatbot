@@ -257,7 +257,7 @@ async def get_weekly_activity(boj_username: str):
 
         weekdays_en = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
         weekdays_kr = ['월', '화', '수', '목', '금', '토', '일']
-        counts = [1,2,3,4,5,6,7]
+        counts = [4,1,3,2,0,0,0]
 
         return {"days": weekdays_kr, "counts": counts}
 

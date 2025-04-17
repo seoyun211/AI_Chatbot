@@ -26,7 +26,7 @@ def get_daily_goal_tip(today: str, yesterday_count: int = 0) -> str:
         "사용자가 오늘 도전할 수 있는 적절한 문제 수를 추천하고, "
         "동기부여되는 말도 한 줄 덧붙여줘. 너무 딱딱하지 않게 말해줘!"
     )
-    model = "gpt-3.5-turbo"
+    model = "gpt-4"
     gpt_response = client.chat.completions.create(
         model=model,
         messages=[{"role": "user", "content": prompt}],
@@ -42,7 +42,7 @@ def analyze_file(file, question: str):
     with open(file_path, "wb") as f:
         shutil.copyfileobj(file.file, f)
 
-    model = "gpt-3.5-turbo"
+    model = "gpt-4"
 
     try:
         # GPT에게 pandas 분석 코드 생성 요청
@@ -81,7 +81,7 @@ def analyze_file(file, question: str):
 
 # 📊 백준 API 정보 기반 분석 요청 → GPT 분석 요약 반환 (파일 업로드 없이 사용)
 def analyze_boj_info(prompt: str) -> str:
-    model = "gpt-3.5-turbo"
+    model = "gpt-4"
     gpt_response = client.chat.completions.create(
         model=model,
         messages=[
