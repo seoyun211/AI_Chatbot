@@ -182,3 +182,17 @@ async def problem_feedback(problem_id: int):
 
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
+# 🎯 티어 체험하기 API
+@app.get("/tier_experience")
+async def tier_experience(tier: int):
+    from backjoon import get_problems_by_level, convert_tier_name
+
+    problems = await get_problems_by_level(level=tier, count=5)
+    tier_name = convert_tier_name(tier)
+
+    return JSONResponse(content={
+        "tier": tier,
+        "tier_name": tier_name,
+        "problems": problems
+    })

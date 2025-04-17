@@ -382,6 +382,7 @@
         { label: '📈 등급 별 공부법', message: '등급 별 공부법' },
         { label: '🏆 도전 과제 생성', message: '도전 과제 생성' },
         { label: '🤖 AI 문제 추천', message: 'AI문제 추천' },
+        { label: '🏅 티어 체험하기', message: '티어 체험' },
         { label: '🧠 문제 풀이 전략 받기', message: '문제 풀이 전략' },
         { label: '🥇 티어 인기 문제 추천', message: '티어 인기 문제 추천' },
         { label: '🎯 데일리 목표 설정', action: showDailyGoalModal }
@@ -431,6 +432,8 @@
         showDistribution();
       } else if (message === "도전 과제 생성") {
         generateChallenge();  // 새 함수 호출
+      } else if (message === "티어 체험") {
+        generateTierExperience();
       } else if (message === "주간 활동 보기") {
         showWeeklyChart();
       }  else if (message === "티어 인기 문제 추천") { 
@@ -641,6 +644,57 @@
         displayMessage("⚠ 분포 데이터를 불러오는 데 실패했습니다.", 'bot-message');
       }
     }
+
+    //티어체험
+    async function generateTierExperience() {
+      console.log("✅ 티어 체험 함수 호출됨");
+
+      const randomTier = Math.floor(Math.random() * (30 - 16 + 1)) + 16;
+
+      const res = await fetch(`http://127.0.0.1:8000/tier_experience?tier=${randomTier}`);
+      const data = await res.json();
+
+      if (data.error) {
+        displayMessage("⚠ 티어 체험 문제를 불러올 수 없습니다.", "bot-message");
+        return;
+      }
+
+      const div = document.createElement("div");
+      div.className = "message bot-message";
+
+      let html = `
+        <div style="background: #f0f8ff; border-radius: 12px; padding: 20px;
+                    margin: 20px 0; max-width: 640px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+          <h3 style="margin: 0 0 20px; color: #3558a2;">🏅 ${data.tier_name} 티어 체험해보기</h3>
+      `;
+
+      data.problems.forEach((p, i) => {
+        html += `
+          <div style="display: flex; justify-content: space-between; align-items: center;
+                      background-color: #ffffff; border: 1.5px solid #d0d8e8;
+                      border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;
+                      box-shadow: 0 2px 6px rgba(0,0,0,0.05); transition: transform 0.2s;"
+              onmouseover="this.style.transform='scale(1.01)'" 
+              onmouseout="this.style.transform='scale(1)'">
+            <div style="font-size: 15px; font-weight: 600; color: #333;text-align: left; flex: 1;">
+              ${i + 1}. ${p.title}
+            </div>
+            <a href="${p.url}" target="_blank" style="
+              padding: 6px 10px; background: #4e83f1; color: white;
+              text-decoration: none; border-radius: 6px; font-size: 13px;
+              font-weight: 500;">
+              문제 풀기 🔗
+            </a>
+          </div>
+        `;
+      });
+
+      html += "</div>";
+      div.innerHTML = html;
+      document.getElementById("chat-box").appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
 
     // 도전 과제 생성
     async function generateChallenge() {
